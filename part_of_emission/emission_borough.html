@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>London Emissions at Borough Level</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css" rel="stylesheet" />
+    <style>
+      body { margin:0; padding:0; }
+      #map { position:absolute; top:0; bottom:0; width:100%; }
+      
+      
+      .map-overlay {
+            font: 20px inherit ;
+            background-color: rgba(46, 46, 46, 0.8);
+            position: absolute;
+            width: 22%;
+            height: 100%;
+            border-radius: 3px;
+            top: 0;
+            left: 0;
+            padding: 0px;
+        }
+      
+      .map-overlay .map-overlay-inner {
+          background-color: rgba(255, 255, 255, 0);
+          box-shadow:0 1px 2px rgba(0, 0, 0, 0);
+          border-radius: 3px;
+          padding: 10px;
+          margin-bottom: 10px;
+      }
+      
+      .map-overlay table {
+        border: none;
+            width: 100%;
+            display: inline-block;
+            padding: 0px;
+      }
+
+      .map-overlay .buttonlist{
+            display: block; /* Make the buttons appear below each other */
+            padding: 10px 0px;
+        }
+      
+      .map-overlay h2 {
+          line-height: 24px;
+          color: #ffffff;
+          display: block;
+          margin: 0 0 10px;
+      }
+
+      .map-overlay h3 {
+          font-size: 14px;
+          color: #ffffff;
+          line-height: 20px;
+          display: block;
+          margin: 0 0 10px;
+      }
+      
+      
+      
+        h4,
+        h5,
+        h6
+        {
+            color: #ffffff;
+            display: block;
+            margin: 10px 0px;
+        }
+
+
+
+      .map-overlay label {
+          font: 16px/18px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+          color: #ffffff;
+          vertical-align: middle;
+          margin: 0;
+          padding: 0;
+      }
+      
+      .map-overlay .legend .bar {
+          height: 10px;
+          width: 100%;
+          background: linear-gradient(to right, #FCA107, #7F3121);
+      }
+      
+      .map-overlay input {
+          display: inline;
+          vertical-align: middle;
+          margin: 5px;
+          padding: 0;
+      }
+
+      
+      .map-overlay p.credit {
+          color: #ffffff;
+          margin: 5px 0 0 0;
+          display: block;
+          font-size: 12px;
+          padding: 0;
+      }
+      
+
+      #myDiv {
+        padding: 0 10px;
+        color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+
+      #myDiv2 {
+          padding: 0 10px;
+          color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+
+      #myDiv3 {
+        padding: 0 10px;
+        color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+
+      #myDiv4 {
+        padding: 0 10px;
+        color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+         
+
+        #legend {
+        font-size: 12px;
+        width: 100%;
+        height: 40px;
+        padding: 5px 10px;
+    }
+
+        #legend2 {
+        font-size: 12px;
+        width: 100%;
+        height: 40px;
+        padding: 5px 10px;
+    }
+
+        #legend3 {
+        font-size: 12px;
+        width: 100%;
+        height: 40px;
+        padding: 5px 10px;
+    }
+
+        #legend4 {
+        font-size: 12px;
+        width: 100%;
+        height: 40px;
+        padding: 5px 10px;
+    }
+
+
+        .legendLabel {
+            width: 15%;
+            color: #ffffff;
+            display: inline-block;
+            text-align: left;
+        }
+
+        .map-overlay label {
+            font-size: 12px;
+            color: #ffffff;
+            padding: 10px 10px 10px 10px;
+        }
+
+        .row {
+            position: center;
+            height: 12px;
+            width: 90%;
+            padding-left: 5px;
+        }
+
+        .colors {
+            background: linear-gradient(to right, #32e458,#eab71f,#e55720,#e55720,#800d2d,#441038);
+            margin-bottom: 5px;
+        }
+
+        .legendb {
+        width: 200px;
+        height: 180px;
+        position: absolute;
+        bottom: 30px;
+        left: 0px;
+        padding: 10px;
+        background-color: transparent;
+        color: #fff;
+        font: 12px/20px ;
+        border-radius: 0px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+        z-index: 1;
+    }
+    .legendb h4 {
+        margin: 0 0 10px;
+        font-size: 15px;
+    }
+    .legendb div span50 {
+        border-radius: 50%;
+        display: inline-block;
+        height: 6px;
+        width: 6px;
+        background-color: #32e458;
+        margin: 0px 22.5px 0px 12.5px;
+    }
+    .legendb div span100 {
+        border-radius: 50%;
+        display: inline-block;
+        height: 10px;
+        width: 10px;
+        background-color: #eab71f;
+        margin: 0px 20px 0px 10px;
+    }
+    .legendb div span150 {
+        border-radius: 50%;
+        display: inline-block;
+        height: 15px;
+        width: 15px;
+        background-color: #e55720;
+        margin: 0px 17.5px 0px 7.5px;
+    }
+    .legendb div span200 {
+        border-radius: 50%;
+        display: inline-block;
+        height: 20px;
+        width: 20px;
+        background-color: #e55720;
+        margin: 0px 15px 0px 5px;
+    }
+    .legendb div span300 {
+        border-radius: 50%;
+        display: inline-block;
+        height: 25px;
+        width: 25px;
+        background-color: #800d2d;
+        margin: 0px 12.5px 0px 2.5px;
+    }
+    .legendb div span300plus {
+        border-radius: 50%;
+        display: inline-block;
+        height: 30px;
+        width: 30px;
+        background-color: #441038;
+        margin: 0px 10px 0px 0px;
+    }
+    .legendb div text {
+        color: #fff;
+        font-size: 12px;
+        position: relative;
+        /*bottom: 10px;*/
+    }
+    .data{
+        position: relative;
+        margin-top: 5px;
+    }
+   </style>
+
+
+
+</head>
+<body>
+
+<div id='map'></div>
+
+<div class='map-overlay top'>
+    <div class='map-overlay-inner'>
+        <h2>London Emissions</h2>
+        <h3>Borough level (2010-2016)</h3>
+    
+        
+        <div class="buttonlist">
+        
+            <h4> Pollutants: </h4>
+        <table><tr><td>
+        <input type="radio" name="layers" id="layer1" value="NOx_b" checked><label>NOx   &nbsp; &nbsp;</label></tr></td>
+        <tr><td>
+        <input type="radio" name="layers" id="layer2" value="PM10_b"><label>PM10  </label></tr></td>
+        <tr><td>
+        <input type="radio" name="layers" id="layer3" value="PM2.5"><label>PM2.5   </label></tr></td>
+        <tr><td>
+        <input type="radio" name="layers" id="layer4" value="CO2"><label>CO2 </label>
+        </td>
+        </tr>
+        </div>
+		
+            
+        <div id="myDiv">
+            <p>Nitrogen oxides are most relevant for air pollution, namely nitric oxide (NO) and nitrogen dioxide (NO2). 
+                These gases contribute to the formation of smog and acid rain, as well as affecting tropospheric ozone.</p></div>
+        
+        <div id="myDiv2">
+            <p>Inhalable particles, with diameters that are generally 10 micrometers and smaller. 
+               PM10 is able to get deep into lungs and some may even get into bloodstream.</p></div>
+
+        <div id="myDiv3">
+            <p>Fine inhalable particles, with diameters that are generally 2.5 micrometers and smaller, 
+                poses greaer risk to health than PM10.</p></div>
+
+        <div id="myDiv4">
+            <p>Carbon dioxide is the most significant long-lived greenhouse gas in Earth's atmosphere. 
+                It has rapidly increased its concentration in the atmosphere since the Industrial Revolution, leading to global warming.  </p></div>
+
+
+        <table><tr><td>
+        <input id='slider' type='range' min='0' max='2' step='1' value='0' list='tickmarks' />
+        <datalist id="tickmarks">
+		  <option value="0" label="2010">
+		  <option value="1" label="2013">
+		  <option value="2" label="2016">
+		  
+		  </datalist> </td>
+          <h4> Year:  <label id='year'>2010</label></h4>
+		
+          </tr></table>
+        
+        <div id='data'><h4>Data:
+             <a href="https://data.london.gov.uk/dataset/london-atmospheric-emissions-inventory--laei--2016" target="_blank">London Datastore </a></h4>.
+        </div>
+        
+        <div id="legend">
+            <div class="legendb">
+                <h4>Emission Volume (tons) </h4>
+                <div><span300plus></span300plus><text style="bottom: 10px">6,000+</text></div>
+                <div><span300></span300><text style="bottom: 7.5px">5,001-6,000</text></div>
+                <div><span200></span200><text style="bottom: 5px">4,001-5,000</text></div>
+                <div><span150></span150><text style="bottom: 3px">3,001-4,000</text></div>
+                <div><span100></span100><text style="bottom: 0px">2,001-3,000</text></div>
+                <div><span50></span50>500-2,000</div>
+        </div></div>
+
+        <div id="legend2">
+            <div class="legendb">
+                <h4>Emission Volume (tons) </h4>
+                <div><span300plus></span300plus><text style="bottom: 10px">600+</text></div>
+                <div><span300></span300><text style="bottom: 7.5px">501-600</text></div>
+                <div><span200></span200><text style="bottom: 5px">401-500</text></div>
+                <div><span150></span150><text style="bottom: 3px">301-400</text></div>
+                <div><span100></span100><text style="bottom: 0px">201-300</text></div>
+                <div><span50></span50>50-200</div>
+        </div></div>
+
+        <div id="legend3">
+            <div class="legendb">
+                <h4>Emission Volume (tons) </h4>
+                <div><span300plus></span300plus><text style="bottom: 10px">360+</text></div>
+                <div><span300></span300><text style="bottom: 7.5px">301-360</text></div>
+                <div><span200></span200><text style="bottom: 5px">241-300</text></div>
+                <div><span150></span150><text style="bottom: 3px">181-240</text></div>
+                <div><span100></span100><text style="bottom: 0px">121-180</text></div>
+                <div><span50></span50>30-120</div>
+        </div></div>
+
+        <div id="legend4">
+            <div class="legendb">
+                <h4>Emission Volume (tons) </h4>
+                <div><span300plus></span300plus><text style="bottom: 10px">2,700,000+</text></div>
+                <div><span300></span300><text style="bottom: 7.5px">2,250,001-2,700,000</text></div>
+                <div><span200></span200><text style="bottom: 5px">1,800,001-2,250,000</text></div>
+                <div><span150></span150><text style="bottom: 3px">1350,001-1,800,000</text></div>
+                <div><span100></span100><text style="bottom: 0px">900,001-1350,000</text></div>
+                <div><span50></span50>200,000-900,000</div>
+        </div></div>
+
+
+        
+        </div>
+        </div>
+
+
+
+<script>
+
+    document.getElementById("myDiv2").setAttribute("hidden","");
+    document.getElementById("myDiv3").setAttribute("hidden","");
+    document.getElementById("myDiv4").setAttribute("hidden","");
+    document.getElementById("legend2").setAttribute("hidden","");
+    document.getElementById("legend3").setAttribute("hidden","");
+    document.getElementById("legend4").setAttribute("hidden","");
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoieWltaW41IiwiYSI6ImNrazd6aHBydjBpeG0ycG54OXFmMjVkN3kifQ.0MTt-KZg4VD0mWzbJoyTjA'; // Put your Mapbox Public Access token here
+
+    // Load a new map in the 'map' HTML div
+    var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: 'mapbox://styles/yimin5/ckol5euvh2i6817o2o56hx8b6', // stylesheet location
+    center: [-0.2, 51.5], // starting position [lng, lat]
+    zoom: 9.3 // starting zoom
+    });
+
+
+    map.addControl(new mapboxgl.NavigationControl());
+
+// Create an array of the available data years
+var years = [
+        '2010',
+        '2013',
+        '2016'
+    ];
+
+
+
+    
+    map.on('load', function() {    // This is our first example of asynchronous JS. We can only add additional layers after the map has loaded
+
+        // This is the main function that runs when the user changes the data year
+        function setYear(year) {
+                
+                document.getElementById('year').textContent = years[year];  // Set the label to the correct year
+
+                var pp = map.getPaintProperty('NOx','circle-radius');
+                var pp2 = map.getPaintProperty('NOx','circle-color');
+                var pp3 = map.getPaintProperty('PM10','circle-radius');
+                var pp4 = map.getPaintProperty('PM10','circle-color');
+                var pp5 = map.getPaintProperty('PM2.5','circle-radius');
+                var pp6 = map.getPaintProperty('PM2.5','circle-color');
+                var pp7 = map.getPaintProperty('CO2','circle-radius');
+                var pp8 = map.getPaintProperty('CO2','circle-color');
+
+                console.log(pp);
+                pp.property = years[year];  // update the pp circle-radius to the new column set by the user
+
+                console.log(pp2);
+                pp2.property = years[year];
+
+                console.log(pp3);
+                pp3.property = years[year];
+
+                console.log(pp4);
+                pp4.property = years[year];
+
+                console.log(pp5);
+                pp5.property = years[year];
+
+                console.log(pp6);
+                pp6.property = years[year];
+
+                console.log(pp7);
+                pp7.property = years[year];
+
+                console.log(pp8);
+                pp8.property = years[year];
+
+                map.setPaintProperty('NOx','circle-radius',pp);
+                map.setPaintProperty('NOx','circle-color',pp2);
+                map.setPaintProperty('PM10','circle-radius',pp3);
+                map.setPaintProperty('PM10','circle-color',pp4);
+                map.setPaintProperty('PM2.5','circle-radius',pp5);
+                map.setPaintProperty('PM2.5','circle-color',pp6);
+                map.setPaintProperty('CO2','circle-radius',pp7);
+                map.setPaintProperty('CO2','circle-color',pp8);
+
+                console.log(map.getPaintProperty('NOx','circle-radius'));
+
+                var yearcol = String(years[year]);
+                var textfield = "{" + yearcol + "}";
+
+                console.log(textfield);
+
+                map.setLayoutProperty('labels', 'text-field', textfield); // update the labels layer to the new column
+                var filters = ['>', yearcol, 30];
+                map.setFilter('labels', filters);
+            }
+
+
+
+
+
+          // Add the circle layer to the map
+
+        map.addLayer({
+                id: 'NOx',
+                type: 'circle',
+                source: {
+                  type: 'vector',
+                  url: 'mapbox://yimin5.39bzcpx3' // Your Mapbox tileset Map ID
+                },
+                'source-layer': 'nox_borough2-7pw4kd', // name of tileset layer
+                'layout': {
+                    'visibility': 'visible'
+                },
+                paint: {
+                    'circle-color':  {property: '2010',
+                type: 'exponential',
+                stops: [
+                    [0, '#32e458'],
+                    [1000, '#32e458'],
+                    [2000, '#eab71f'],
+                    [3000, '#e55720'],
+                    [4000, '#bf1c1c'],
+                    [5000, '#800d2d'],
+                    [6000, '#441038']]},
+                    'circle-opacity': 0.75,
+                    'circle-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    'circle-stroke-width': {stops: [[8, 0.5], [13, 3], [16, 4]]  // The width properties change at different zoom levels, getting thicker
+                    },
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-opacity': 0.95,
+                    'circle-stroke-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    'circle-radius': {
+                        property: '2010',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 500}, 0.5],
+                            [{zoom: 5, value: 6000}, 4],
+                            [{zoom: 7, value: 500}, 1],
+                            [{zoom: 7, value: 6000}, 13],
+                            [{zoom: 9, value: 500}, 2],
+                            [{zoom: 9, value: 6000}, 50],
+                            [{zoom: 12, value: 500}, 5],
+                            [{zoom: 12, value: 6000}, 100],
+                            ]
+                    }}
+              });
+
+
+     
+
+      
+     
+
+
+          // Load the second  layer. This layer has its opacity set to zero.
+      map.addLayer({
+        id: 'PM10',
+        type: 'circle',
+        source: {
+          type: 'vector',
+          url: 'mapbox://yimin5.9jtqul76' // Your Mapbox tileset Map ID
+        },
+        'source-layer': 'PM10_borough2-3yowgt', // name of tileset
+        paint: {
+          'circle-color': {property: '2010',
+                type: 'exponential',
+                stops: [
+                    [0, '#32e458'],
+                    [100, '#32e458'],
+                    [200, '#eab71f'],
+                    [300, '#e55720'],
+                    [400, '#bf1c1c'],
+                    [500, '#800d2d'],
+                    [600, '#441038']]},
+          'circle-opacity': 0,
+          'circle-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    'circle-stroke-width': {stops: [[8, 0.5], [13, 3], [16, 4]]  // The width properties change at different zoom levels, getting thicker
+                    },
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-opacity': 0,
+                    'circle-stroke-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    
+                    'circle-radius': {
+                        property: '2010',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 50}, 1.5],
+                            [{zoom: 5, value: 600}, 4],
+                            [{zoom: 7, value: 50}, 2.5],
+                            [{zoom: 7, value: 600}, 12],
+                            [{zoom: 9, value: 50}, 4.5],
+                            [{zoom: 9, value: 600}, 35],
+                            [{zoom: 12, value: 50}, 5.5],
+                            [{zoom: 12, value: 600}, 120],
+                            ]
+                    }
+            }
+      });
+
+      map.addLayer({
+        id: 'PM2.5',
+        type: 'circle',
+        source: {
+          type: 'vector',
+          url: 'mapbox://yimin5.dt79uv41' // Your Mapbox tileset Map ID
+        },
+        'source-layer': 'PM2-dj10py', // name of tileset
+        paint: {
+          'circle-color': {property: '2010',
+                type: 'exponential',
+                stops: [
+                    [0, '#32e458'],
+                    [60, '#32e458'],
+                    [120, '#eab71f'],
+                    [180, '#e55720'],
+                    [240, '#bf1c1c'],
+                    [300, '#800d2d'],
+                    [360, '#441038']]},
+          'circle-opacity': 0,
+          'circle-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    'circle-stroke-width': {stops: [[8, 0.5], [13, 3], [16, 4]]  // The width properties change at different zoom levels, getting thicker
+                    },
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-opacity': 0,
+                    'circle-stroke-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    
+                    'circle-radius': {
+                        property: '2010',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 30}, 1.5],
+                            [{zoom: 5, value: 360}, 4],
+                            [{zoom: 7, value: 30}, 2.5],
+                            [{zoom: 7, value: 360}, 12],
+                            [{zoom: 9, value: 30}, 4.5],
+                            [{zoom: 9, value: 360}, 35],
+                            [{zoom: 12, value: 30}, 5.5],
+                            [{zoom: 12, value: 360}, 120],
+                            ]
+                    }
+            }
+      });
+
+      map.addLayer({
+        id: 'CO2',
+        type: 'circle',
+        source: {
+          type: 'vector',
+          url: 'mapbox://yimin5.afqmp0mr' // Your Mapbox tileset Map ID
+        },
+        'source-layer': 'CO2_borough2-d5pxv5', // name of tileset
+        paint: {
+          'circle-color': {property: '2010',
+                type: 'exponential',
+                stops: [
+                    [0, '#32e458'],
+                    [450000, '#32e458'],
+                    [900000, '#eab71f'],
+                    [1350000, '#e55720'],
+                    [1800000, '#bf1c1c'],
+                    [2250000, '#800d2d'],
+                    [2700000, '#441038']]},
+          'circle-opacity': 0,
+          'circle-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    'circle-stroke-width': {stops: [[8, 0.5], [13, 3], [16, 4]]  // The width properties change at different zoom levels, getting thicker
+                    },
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-opacity': 0,
+                    'circle-stroke-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    
+                    'circle-radius': {
+                        property: '2010',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 200000}, 1.5],
+                            [{zoom: 5, value: 2700000}, 4],
+                            [{zoom: 7, value: 200000}, 2.5],
+                            [{zoom: 7, value: 2700000}, 12],
+                            [{zoom: 9, value: 200000}, 4.5],
+                            [{zoom: 9, value: 2700000}, 35],
+                            [{zoom: 12, value: 200000}, 5.5],
+                            [{zoom: 12, value: 2700000}, 120],
+                            ]
+                    }
+            }
+      });
+
+
+
+      map.addLayer({
+        id: 'all',
+        type: 'circle',
+        source: {
+          type: 'vector',
+          url: 'mapbox://yimin5.8zwqxt03' // Your Mapbox tileset Map ID
+        },
+        'source-layer': 'all5-1uht9z', // name of tileset
+        paint: {
+          'circle-color': {property: 'Nox_2010',
+                type: 'exponential',
+                stops: [
+                [0, '#32e458'],
+                [6000, '#441038']]},
+          'circle-opacity': 0,
+          'circle-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-opacity': 0,
+                    'circle-stroke-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            },
+                    
+                    'circle-radius': {
+                        property: 'Nox_2010',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 500}, 1.5],
+                            [{zoom: 5, value: 6000}, 4],
+                            [{zoom: 7, value: 500}, 2.5],
+                            [{zoom: 7, value: 6000}, 12],
+                            [{zoom: 9, value: 500}, 4.5],
+                            [{zoom: 9, value: 6000}, 35],
+                            [{zoom: 12, value: 500}, 5.5],
+                            [{zoom: 12, value: 6000}, 120],
+                            ]
+                    }
+            }
+      });
+
+
+
+             
+
+
+
+    // Assign an event listner to the slider so that the setYear function runs when the user changes the slider
+    document.getElementById('slider').addEventListener('input', function(e) {
+                var year = parseInt(e.target.value);
+                setYear(year);
+                });
+
+    
+
+
+            var mypopup = new mapboxgl.Popup({closeButton: false});
+
+            //popup 
+            
+            map.on('mouseover', 'all', function(e) {
+
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var description = "<h2>" + e.features[0].properties.NAME  + "</h2></p><p><h3>NOx Growth rate: " +  e.features[0].properties.Nox_change + 
+            "</h3></p>" +"<b>2010: </b>" + e.features[0].properties.Nox_2010 + "    <b>2016: </b>" + e.features[0].properties.Nox_2016 + 
+
+            "</h2></p><p><h3>PM10 Growth rate: " +  e.features[0].properties.PM10_change + 
+            "</h3></p>" +"<b>2010: </b>" + e.features[0].properties.PM10_2010 + "    <b>2016: </b>" + e.features[0].properties.PM10_2016 +
+
+            "</h2></p><p><h3>PM2.5 Growth rate: " +  e.features[0].properties.PM2_change + 
+            "</h3></p>" +"<b>2010: </b>" + e.features[0].properties.PM2_2010 + "    <b>2016: </b>" + e.features[0].properties.PM2_2016 +
+
+            "</h2></p><p><h3>CO2 Growth rate: " +  e.features[0].properties.CO2_change + 
+            "</h3></p>" +"<b>2010: </b>" + e.features[0].properties.CO2_2010 + "    <b>2016: </b>" + e.features[0].properties.CO2_2016 ;
+
+            mypopup
+            .setLngLat(coordinates)
+            .setHTML(description)
+            .addTo(map);
+
+            });
+
+            // Change the cursor to a pointer when the mouse is over the stations layer.
+            map.on('mouseenter', 'all', function () {
+                  map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves and remove the popup window.
+            map.on('mouseleave', 'all', function () {
+                map.getCanvas().style.cursor = '';
+                mypopup.remove();
+            });
+        
+
+
+
+
+      //Event listener for layer switch
+      document.getElementById("layer1").addEventListener("click", function(){
+      map.setPaintProperty('NOx','circle-opacity',0.75);
+      map.setPaintProperty('PM10','circle-opacity',0);
+      map.setPaintProperty('PM2.5','circle-opacity',0);
+      map.setPaintProperty('CO2','circle-opacity',0);
+      map.setPaintProperty('NOx','circle-stroke-opacity',0.95);
+      map.setPaintProperty('PM10','circle-stroke-opacity',0);
+      map.setPaintProperty('PM2.5','circle-stroke-opacity',0);
+      map.setPaintProperty('CO2','circle-stroke-opacity',0);
+
+      document.getElementById("myDiv").removeAttribute("hidden");
+      document.getElementById("myDiv2").setAttribute("hidden","");
+      document.getElementById("myDiv3").setAttribute("hidden","");
+      document.getElementById("myDiv4").setAttribute("hidden","");
+
+      document.getElementById("legend").removeAttribute("hidden");
+      document.getElementById("legend2").setAttribute("hidden","");
+      document.getElementById("legend3").setAttribute("hidden","");
+      document.getElementById("legend4").setAttribute("hidden","");
+
+
+      });
+
+
+
+      document.getElementById("layer2").addEventListener("click", function(){
+      map.setPaintProperty('NOx','circle-opacity',0);
+      map.setPaintProperty('PM10','circle-opacity',0.75);
+      map.setPaintProperty('PM2.5','circle-opacity',0);
+      map.setPaintProperty('CO2','circle-opacity',0);
+      map.setPaintProperty('NOx','circle-stroke-opacity',0);
+      map.setPaintProperty('PM10','circle-stroke-opacity',0.95);
+      map.setPaintProperty('PM2.5','circle-stroke-opacity',0);
+      map.setPaintProperty('CO2','circle-stroke-opacity',0);
+
+      document.getElementById("myDiv").setAttribute("hidden","");
+      document.getElementById("myDiv2").removeAttribute("hidden");
+      document.getElementById("myDiv3").setAttribute("hidden","");
+      document.getElementById("myDiv4").setAttribute("hidden","");
+
+      document.getElementById("legend").setAttribute("hidden","");
+      document.getElementById("legend2").removeAttribute("hidden");
+      document.getElementById("legend3").setAttribute("hidden","");
+      document.getElementById("legend4").setAttribute("hidden","");
+
+      });
+
+      document.getElementById("layer3").addEventListener("click", function(){
+      map.setPaintProperty('NOx','circle-opacity',0);
+      map.setPaintProperty('PM10','circle-opacity',0);
+      map.setPaintProperty('PM2.5','circle-opacity',0.75);
+      map.setPaintProperty('CO2','circle-opacity',0);
+      map.setPaintProperty('NOx','circle-stroke-opacity',0);
+      map.setPaintProperty('PM10','circle-stroke-opacity',0);
+      map.setPaintProperty('PM2.5','circle-stroke-opacity',0.95);
+      map.setPaintProperty('CO2','circle-stroke-opacity',0);
+
+      document.getElementById("myDiv").setAttribute("hidden","");
+      document.getElementById("myDiv2").setAttribute("hidden","");
+      document.getElementById("myDiv3").removeAttribute("hidden");
+      document.getElementById("myDiv4").setAttribute("hidden","");
+
+      document.getElementById("legend").setAttribute("hidden","");
+      document.getElementById("legend2").setAttribute("hidden","");
+      document.getElementById("legend3").removeAttribute("hidden");
+      document.getElementById("legend4").setAttribute("hidden","");
+
+      });
+
+      document.getElementById("layer4").addEventListener("click", function(){
+      map.setPaintProperty('NOx','circle-opacity',0);
+      map.setPaintProperty('PM10','circle-opacity',0);
+      map.setPaintProperty('PM2.5','circle-opacity',0);
+      map.setPaintProperty('CO2','circle-opacity',0.75);
+      map.setPaintProperty('NOx','circle-stroke-opacity',0);
+      map.setPaintProperty('PM10','circle-stroke-opacity',0);
+      map.setPaintProperty('PM2.5','circle-stroke-opacity',0);
+      map.setPaintProperty('CO2','circle-stroke-opacity',0.95);
+
+      document.getElementById("myDiv").setAttribute("hidden","");
+      document.getElementById("myDiv2").setAttribute("hidden","");
+      document.getElementById("myDiv3").setAttribute("hidden","");
+      document.getElementById("myDiv4").removeAttribute("hidden");
+
+      document.getElementById("legend").setAttribute("hidden","");
+      document.getElementById("legend2").setAttribute("hidden","");
+      document.getElementById("legend3").setAttribute("hidden","");
+      document.getElementById("legend4").removeAttribute("hidden");
+
+      });
+
+
+
+
+        
+    });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>London Emissions 3D Map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+
+        .map-overlay {
+            font: 20px inherit ;
+            background-color: rgba(46, 46, 46, 0.8);
+            position: absolute;
+            width: 22%;
+            height: 100%;
+            border-radius: 3px;
+            top: 0;
+            left: 0;
+            padding: 0px;
+        }
+      
+      .map-overlay .map-overlay-inner {
+          background-color: rgba(255, 255, 255, 0);
+          box-shadow:0 1px 2px rgba(0, 0, 0, 0);
+          border-radius: 3px;
+          padding: 10px;
+          margin-bottom: 10px;
+      }
+      
+      .map-overlay table {
+        border: none;
+            width: 100%;
+            display: inline-block;
+            padding: 0px;
+      }
+
+      .map-overlay .buttonlist{
+            display: block; /* Make the buttons appear below each other */
+            padding: 10px 0px;
+        }
+      
+      .map-overlay h2 {
+          line-height: 24px;
+          color: #ffffff;
+          display: block;
+          margin: 0 0 10px;
+      }
+
+      .map-overlay h3 {
+          font-size: 14px;
+          color: #ffffff;
+          line-height: 20px;
+          display: block;
+          margin: 0 0 10px;
+      }
+      
+      
+      
+        h4,
+        h5,
+        h6
+        {
+            color: #ffffff;
+            display: block;
+            margin: 10px 0px;
+        }
+
+
+      .map-overlay label {
+          font: 16px/18px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+          color: #ffffff;
+          vertical-align: middle;
+          margin: 0;
+          padding: 0;
+      }
+      
+      .map-overlay .legend .bar {
+          height: 10px;
+          width: 100%;
+          background: linear-gradient(to right, #FCA107, #7F3121);
+      }
+      
+      .map-overlay input {
+          display: inline;
+          vertical-align: middle;
+          margin: 5px;
+          padding: 0;
+      }
+
+      
+      .map-overlay p.credit {
+          color: #ffffff;
+          margin: 5px 0 0 0;
+          display: block;
+          font-size: 12px;
+          padding: 0;
+      }
+      
+
+      .map-overlay .buttonlist2{
+            display: block; /* Make the buttons appear below each other */
+            padding: 10px 0px;
+        }
+
+
+        .map-overlay .viewButton {
+            background-color: Transparent;
+            border:1px solid #FFFFFF;
+            width: 120px;
+            color: white;
+            border-radius: 3px;
+            padding: 5px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline;
+            font: 14px inherit ;
+            cursor: pointer; /* Pointer/hand icon */
+
+        }
+
+        .map-overlay .viewButton:hover {background-color: rgba(255, 255, 255, 0.3)}
+
+        
+
+
+      #myDiv {
+        padding: 0 10px;
+        color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+
+      #myDiv2 {
+          padding: 0 10px;
+          color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+
+      #myDiv3 {
+        padding: 0 10px;
+        color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+
+      #myDiv4 {
+        padding: 0 10px;
+        color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+
+      #intro {
+        padding: 0 10px;
+        color: #ffffff;
+          font-size: 14px;
+          border: 2px  rgb(255, 255, 255);
+          background-color: rgba(255, 255, 255, 0);
+          text-align: justify;
+      }
+         
+       
+
+        .legendLabel {
+            width: 15%;
+            color: #ffffff;
+            display: inline-block;
+            text-align: left;
+        }
+
+        .map-overlay label {
+            font-size: 12px;
+            color: #ffffff;
+            padding: 10px 10px 10px 10px;
+        }
+
+        .row {
+            position: center;
+            height: 12px;
+            width: 90%;
+            padding-left: 5px;
+        }
+
+        .colors {
+            background: linear-gradient(to right, #32e458,#eab71f,#e55720,#e55720,#800d2d,#441038);
+            margin-bottom: 5px;
+        }
+
+        #legend {
+            font-size: 12px;
+            width: 100%;
+            height: 40px;
+            padding: 5px 10px;
+        }
+        
+        .data {
+        position: relative;
+        margin-top: 5px;
+        }
+        
+   </style>
+
+
+
+</head>
+<body>
+
+<div id='map'></div>
+
+<div class='map-overlay top'>
+    <div class='map-overlay-inner'>
+        <h2>London Emissions</h2>
+        <h3>Grid level (2010-2016)</h3>
+
+        <div id="intro">
+            <p>This map shows emissions of NOx, PM10, PM2.5 and CO2 in tons at a 1km grid square resolution in Greater London Area. 
+            Note that some of the grids are further cut with borough boundaries.</p></div>
+        
+    
+        
+        <h4>Choose view: </h4>
+        <div class="buttonlist2">
+            <button class="viewButton" id="3D">View Height</button>
+            <button class="viewButton" id="top">Airscape</button>
+        </div>
+
+
+        <div class="buttonlist">
+        
+            <h4> Pollutants: </h4>
+        <table><tr><td>
+        <input type="radio" name="layers" id="layer1" value="NOx_b" checked><label>NOx   &nbsp; &nbsp;</label></tr></td>
+        <tr><td>
+        <input type="radio" name="layers" id="layer2" value="PM10_b"><label>PM10  </label></tr></td>
+        <tr><td>
+        <input type="radio" name="layers" id="layer3" value="PM2.5"><label>PM2.5  </label></tr></td>
+        <tr><td>
+        <input type="radio" name="layers" id="layer4" value="CO2"><label>CO2  </label>
+        </td>
+        </tr>
+        </div>
+		
+            
+        <div id="myDiv">
+            <p> </p></div>
+        
+        <div id="myDiv2">
+            <p> </p></div>
+
+        <div id="myDiv3">
+            <p> </p></div>
+
+        <div id="myDiv4">
+            <p> </p></div>
+
+
+        <table><tr><td>
+        <input id='slider' type='range' min='0' max='2' step='1' value='0' list='tickmarks' />
+        <datalist id="tickmarks">
+		  <option value="0" label="2010">
+		  <option value="1" label="2013">
+		  <option value="2" label="2016">
+		  
+		  </datalist> </td>
+          <h4> Year:  <label id='year'>2010</label></h4>
+		
+          </tr></table>
+        
+        
+        <h5>Emission Volume (tons/km2)</h5>
+          <div id="legend">
+              <div class='row colors'></div>
+              <div class='legendLabel'>0</div>
+              <div class='legendLabel'>50</div>
+              <div class='legendLabel'>100</div>
+              <div class='legendLabel'>150</div>
+              <div class='legendLabel'>200</div>
+              <div class='legendLabel'>250</div>
+  
+        </div>
+
+        <div id="legend2">
+            <div class='row colors'></div>
+            <div class='legendLabel'>0</div>
+            <div class='legendLabel'>10</div>
+            <div class='legendLabel'>20</div>
+            <div class='legendLabel'>30</div>
+            <div class='legendLabel'>40</div>
+            <div class='legendLabel'>50</div>
+
+      </div>
+
+        <div id="legend3">
+        <div class='row colors'></div>
+        <div class='legendLabel'>0</div>
+        <div class='legendLabel'>10</div>
+        <div class='legendLabel'>20</div>
+        <div class='legendLabel'>30</div>
+        <div class='legendLabel'>40</div>
+        <div class='legendLabel'>50</div>
+
+        </div>
+
+        <div id="legend4">
+            <div class='row colors'></div>
+            <div class='legendLabel'>0</div>
+            <div class='legendLabel'>20000</div>
+            <div class='legendLabel'>40000</div>
+            <div class='legendLabel'>60000</div>
+            <div class='legendLabel'>80000</div>
+            <div class='legendLabel'>100000</div>
+
+      </div>
+      <div id='data'><h4>Data:
+        <a href="https://data.london.gov.uk/dataset/london-atmospheric-emissions-inventory--laei--2016" target="_blank">London Datastore </a></h4>.
+      </div>
+    
+        
+
+
+        
+        </div>
+        </div>
+
+
+
+<script>
+
+    document.getElementById("myDiv2").setAttribute("hidden","");
+    document.getElementById("myDiv3").setAttribute("hidden","");
+    document.getElementById("myDiv4").setAttribute("hidden","");
+    document.getElementById("legend2").setAttribute("hidden","");
+    document.getElementById("legend3").setAttribute("hidden","");
+    document.getElementById("legend4").setAttribute("hidden","");
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoieWltaW41IiwiYSI6ImNrazd6aHBydjBpeG0ycG54OXFmMjVkN3kifQ.0MTt-KZg4VD0mWzbJoyTjA'; // Put your Mapbox Public Access token here
+
+    // Load a new map in the 'map' HTML div
+    var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: 'mapbox://styles/yimin5/ckol81uhu18z819o1zkym3mui', // stylesheet location
+    center: [-0.2, 51.5], // starting position [lng, lat]
+    zoom: 9.3 // starting zoom
+    });
+
+
+    //animated icon
+    var size = 100;
+ 
+    // implementation of CustomLayerInterface to draw a pulsing dot icon on the map
+    // see https://docs.mapbox.com/mapbox-gl-js/api/#customlayerinterface for more info
+    var pulsingDot = {
+    width: size,
+    height: size,
+    data: new Uint8Array(size * size * 4),
+ 
+    // get rendering context for the map canvas when layer is added to the map
+    onAdd: function () {
+    var canvas = document.createElement('canvas');
+    canvas.width = this.width;
+    canvas.height = this.height;
+    this.context = canvas.getContext('2d');
+    },
+ 
+    // called once before every frame where the icon will be used
+    render: function () {
+    var duration = 1000;
+    var t = (performance.now() % duration) / duration;
+ 
+    var radius = (size / 2) * 0.3;
+    var outerRadius = (size / 2) * 0.7 * t + radius;
+    var context = this.context;
+ 
+    // draw outer circle
+    context.clearRect(0, 0, this.width, this.height);
+    context.beginPath();
+    context.arc(
+    this.width / 2,
+    this.height / 2,
+    outerRadius,
+    0,
+    Math.PI * 2
+    );
+    context.fillStyle = 'rgba(255, 200, 200,' + (1 - t) + ')';
+    context.fill();
+ 
+    // draw inner circle
+    context.beginPath();
+    context.arc(
+    this.width / 2,
+    this.height / 2,
+    radius,
+    0,
+    Math.PI * 2
+    );
+    context.fillStyle = 'rgba(255, 100, 100, 1)';
+    context.strokeStyle = 'white';
+    context.lineWidth = 2 + 4 * (1 - t);
+    context.fill();
+    context.stroke();
+ 
+    // update this image's data with data from the canvas
+    this.data = context.getImageData(
+    0,
+    0,
+    this.width,
+    this.height
+    ).data;
+ 
+    // continuously repaint the map, resulting in the smooth animation of the dot
+    map.triggerRepaint();
+ 
+    // return `true` to let the map know that the image was updated
+    return true;
+    }
+    };
+
+
+
+//navigation control
+    map.addControl(new mapboxgl.NavigationControl());
+
+// Create an array of the available data years
+var years = [
+        '2010',
+        '2013',
+        '2016'
+    ];
+
+
+    map.on('load', function() {    // This is our first example of asynchronous JS. We can only add additional layers after the map has loaded
+
+        // This is the main function that runs when the user changes the data year
+        function setYear(year) {
+
+        document.getElementById('year').textContent = years[year]; // Set the label to the correct year
+
+        var pp = map.getPaintProperty('NOx', 'fill-extrusion-height');
+        var pp2 = map.getPaintProperty('NOx', 'fill-extrusion-color');
+        
+
+        console.log(pp);
+            pp.property = "NOx" + "_" + years[year]; // update the pp circle-radius to the new column set by the user
+            pp2.property = "NOx" + "_" + years[year];
+
+            map.setPaintProperty('NOx', 'fill-extrusion-height', pp);
+            map.setPaintProperty('NOx', 'fill-extrusion-color', pp2);
+
+        console.log(map.getPaintProperty('NOx', 'fill-extrusion-height'));
+        console.log(map.getPaintProperty('NOx', 'fill-extrusion-color'));
+
+        var yearcol = "NOx" + "_" + String(years[year]);
+        /*var textfield = "{" + yearcol + "}";*/
+
+        
+        }
+
+        function setYear1(year) {
+
+        document.getElementById('year').textContent = years[year]; // Set the label to the correct year
+
+        var pp3 = map.getPaintProperty('PM10', 'fill-extrusion-height');
+        var pp4 = map.getPaintProperty('PM10', 'fill-extrusion-color');
+
+
+        console.log(pp3);
+        pp3.property = "PM10" + "_" + years[year]; // update the pp circle-radius to the new column set by the user
+        pp4.property = "PM10" + "_" + years[year];
+
+        map.setPaintProperty('PM10', 'fill-extrusion-height', pp3);
+        map.setPaintProperty('PM10', 'fill-extrusion-color', pp4);
+
+        console.log(map.getPaintProperty('PM10', 'fill-extrusion-height'));
+        console.log(map.getPaintProperty('PM10', 'fill-extrusion-color'));
+
+        var yearcol = "PM10" + "_" + String(years[year]);
+        /*var textfield = "{" + yearcol + "}";*/
+
+
+        }
+
+        function setYear2(year) {
+
+        document.getElementById('year').textContent = years[year]; // Set the label to the correct year
+
+        var pp5 = map.getPaintProperty('PM2', 'fill-extrusion-height');
+        var pp6 = map.getPaintProperty('PM2', 'fill-extrusion-color');
+
+
+        console.log(pp5);
+        pp5.property = "PM2" + "_" + years[year]; // update the pp circle-radius to the new column set by the user
+        pp6.property = "PM2" + "_" + years[year];
+
+        map.setPaintProperty('PM2', 'fill-extrusion-height', pp5);
+        map.setPaintProperty('PM2', 'fill-extrusion-color', pp6);
+
+        console.log(map.getPaintProperty('PM2', 'fill-extrusion-height'));
+        console.log(map.getPaintProperty('PM2', 'fill-extrusion-color'));
+
+        var yearcol = "PM2" + "_" + String(years[year]);
+        /*var textfield = "{" + yearcol + "}";*/
+
+
+        }
+
+        function setYear3(year) {
+
+        document.getElementById('year').textContent = years[year]; // Set the label to the correct year
+
+        var pp7 = map.getPaintProperty('CO2', 'fill-extrusion-height');
+        var pp8 = map.getPaintProperty('CO2', 'fill-extrusion-color');
+
+
+        console.log(pp7);
+        pp7.property = "CO2" + "_" + years[year]; // update the pp circle-radius to the new column set by the user
+
+        console.log(pp8);
+        pp8.property = "CO2" + "_" + years[year];
+
+        map.setPaintProperty('CO2', 'fill-extrusion-height', pp7);
+        map.setPaintProperty('CO2', 'fill-extrusion-color', pp8);
+
+        console.log(map.getPaintProperty('CO2', 'fill-extrusion-height'));
+        console.log(map.getPaintProperty('CO2', 'fill-extrusion-color'));
+
+        var yearcol = "CO2" + "_" + String(years[year]);
+        /*var textfield = "{" + yearcol + "}";*/
+
+
+        }
+
+
+
+
+
+
+          // Add the circle layer to the map
+
+        map.addLayer({
+                id: 'NOx',
+                type: 'fill-extrusion',
+                source: {
+                  type: 'vector',
+                  url: 'mapbox://yimin5.0ubfg8tt' // Your Mapbox tileset Map ID
+                },
+                'source-layer': 'grid_norm2-2as4io', // name of tileset layer
+                'layout': {
+                    'visibility': 'visible'
+                },
+                paint: {
+                    'fill-extrusion-color':  {property: 'NOx_2010',
+                type: 'exponential',
+                stops: [
+                    [0, '#141414'],
+                    [0.01, '#32e458'],
+                
+                    [50, '#eab71f'],
+                    [100, '#e55720'],
+                    [150, '#bf1c1c'],
+                    [200, '#800d2d'],
+                    [250, '#441038']]},
+                    'fill-extrusion-height': {
+                        property: 'PM10_2010',
+                        type: 'exponential',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 0}, 5],
+                            [{zoom: 5, value: 250}, 10000],
+                            [{zoom: 7, value: 0}, 10],
+                            [{zoom: 7, value: 250}, 10000],
+                            [{zoom: 9, value: 0}, 15],
+                            [{zoom: 9, value: 250}, 10000],
+                            [{zoom: 12, value: 0}, 20],
+                            [{zoom: 12, value: 250}, 10000],
+                            ]
+                    },  //expression that controls the extrusion height based on attribute
+                    'fill-extrusion-opacity': 1,
+                    'fill-extrusion-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            }
+                    }
+              });
+
+
+              map.addLayer({
+                id: 'PM10',
+                type: 'fill-extrusion',
+                source: {
+                  type: 'vector',
+                  url: 'mapbox://yimin5.0ubfg8tt' // Your Mapbox tileset Map ID
+                },
+                'source-layer': 'grid_norm2-2as4io', // name of tileset layer
+                'layout': {
+                    'visibility': 'visible'
+                },
+                paint: {
+                    'fill-extrusion-color':  {property: 'PM10_2010',
+                type: 'exponential',
+                stops: [
+                    [0, '#141414'],
+                    [0.01, '#32e458'],
+                
+                    [10, '#eab71f'],
+                    [20, '#e55720'],
+                    [30, '#bf1c1c'],
+                    [40, '#800d2d'],
+                    [50, '#441038']]},
+                    'fill-extrusion-height': {
+                        property: 'PM10_2010',
+                        type: 'exponential',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 0}, 5],
+                            [{zoom: 5, value: 50}, 10000],
+                            [{zoom: 7, value: 0}, 10],
+                            [{zoom: 7, value: 50}, 10000],
+                            [{zoom: 9, value: 0}, 15],
+                            [{zoom: 9, value: 50}, 10000],
+                            [{zoom: 12, value: 0}, 20],
+                            [{zoom: 12, value: 50}, 10000],
+                            ]
+                    },  //expression that controls the extrusion height based on attribute
+                    'fill-extrusion-opacity': 0,
+                    'fill-extrusion-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            }
+                    }
+              });
+
+
+              map.addLayer({
+                id: 'PM2',
+                type: 'fill-extrusion',
+                source: {
+                  type: 'vector',
+                  url: 'mapbox://yimin5.0ubfg8tt' // Your Mapbox tileset Map ID
+                },
+                'source-layer': 'grid_norm2-2as4io', // name of tileset layer
+                'layout': {
+                    'visibility': 'visible'
+                },
+                paint: {
+                    'fill-extrusion-color':  {property: 'PM2_2010',
+                type: 'exponential',
+                stops: [
+                    [0, '#141414'],
+                    [0.01, '#32e458'],
+                
+                    [10, '#eab71f'],
+                    [20, '#e55720'],
+                    [30, '#bf1c1c'],
+                    [40, '#800d2d'],
+                    [50, '#441038']]},
+                    'fill-extrusion-height': {
+                        property: 'PM2_2010',
+                        type: 'exponential',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 0}, 5],
+                            [{zoom: 5, value: 50}, 10000],
+                            [{zoom: 7, value: 0}, 10],
+                            [{zoom: 7, value: 50}, 10000],
+                            [{zoom: 9, value: 0}, 15],
+                            [{zoom: 9, value: 50}, 10000],
+                            [{zoom: 12, value: 0}, 20],
+                            [{zoom: 12, value: 50}, 10000],
+                            ]
+                    },  //expression that controls the extrusion height based on attribute
+                    'fill-extrusion-opacity': 0,
+                    'fill-extrusion-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            }
+                    }
+              });
+
+              map.addLayer({
+                id: 'CO2',
+                type: 'fill-extrusion',
+                source: {
+                  type: 'vector',
+                  url: 'mapbox://yimin5.0ubfg8tt' // Your Mapbox tileset Map ID
+                },
+                'source-layer': 'grid_norm2-2as4io', // name of tileset layer
+                'layout': {
+                    'visibility': 'visible'
+                },
+                paint: {
+                    'fill-extrusion-color':  {property: 'CO2_2010',
+                type: 'exponential',
+                stops: [
+                    [0, '#141414'],
+                    [0.01, '#32e458'],
+                
+                    [20000, '#eab71f'],
+                    [40000, '#e55720'],
+                    [60000, '#bf1c1c'],
+                    [80000, '#800d2d'],
+                    [100000, '#441038']]},
+                    'fill-extrusion-height':  {
+                        property: 'CO2_2010',
+                        type: 'exponential',
+                        stops: [                             // The circle radius varies according to the zoom level and the number of passengers
+                            [{zoom: 5, value: 0}, 5],
+                            [{zoom: 5, value: 100000}, 10000],
+                            [{zoom: 7, value: 0}, 10],
+                            [{zoom: 7, value: 100000}, 10000],
+                            [{zoom: 9, value: 0}, 15],
+                            [{zoom: 9, value: 100000}, 10000],
+                            [{zoom: 12, value: 0}, 20],
+                            [{zoom: 12, value: 100000}, 10000],
+                            ]
+                    },  //expression that controls the extrusion height based on attribute,
+                    
+                    'fill-extrusion-opacity': 0,
+                    'fill-extrusion-opacity-transition':{
+                duration: 1000,
+                delay: 0
+            }
+                    }
+              });
+
+
+     
+            
+
+     
+
+
+    map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
+ 
+    map.addSource('points', {
+    'type': 'geojson',
+    'data': {
+    'type': 'FeatureCollection',
+    'features': [
+    {
+    'type': 'Feature',
+    'geometry': {
+    'type': 'Point',
+    'coordinates': [-0.0127,
+                        51.5462]
+    
+    },
+    'properties': {
+    'title': 'Olympic Park'
+    }
+    }
+    ]
+    }
+    });
+    
+    map.addLayer({
+    'id': 'points',
+    'type': 'symbol',
+    'source': 'points',
+    'layout': {
+    'icon-image': 'pulsing-dot',
+    'text-field': ['get', 'title'],
+    'text-font': [
+    'Open Sans Semibold',
+    'Arial Unicode MS Bold'
+    ],
+    'text-offset': [0, 0.5],
+    'text-anchor': 'top'
+    },
+    'paint': {
+            'text-color': 'rgba(255,255,255,0.91)',
+            'text-halo-color': 'rgba(27,27,27,0.91)',
+            'text-halo-width': 1
+        }
+    });
+
+
+             
+
+
+
+    // Assign an event listner to the slider so that the setYear function runs when the user changes the slider
+    document.getElementById('slider').addEventListener('input', function(e) {
+                var year = parseInt(e.target.value);
+                setYear(year);
+                });
+
+    document.getElementById('slider').addEventListener('input', function(e) {
+                var year = parseInt(e.target.value);
+                setYear1(year);
+                });
+
+    document.getElementById('slider').addEventListener('input', function(e) {
+                var year = parseInt(e.target.value);
+                setYear2(year);
+                });
+
+    document.getElementById('slider').addEventListener('input', function(e) {
+                var year = parseInt(e.target.value);
+                setYear3(year);
+                });
+
+            // The action for view buttons
+    document.getElementById("3D").addEventListener('click', function(e){
+        let viewAngle = 45;
+        let zoomSize = 10;
+        let cor = [-0.2, 51.48];
+        map.flyTo({
+            center: cor,
+            zoom: zoomSize,
+            pitch: viewAngle,
+            speed: 0.2, // make the flying slow
+            curve: 1, // change the speed at which it zooms out
+        });
+    });
+
+    document.getElementById("top").addEventListener('click', function(e){
+        let viewAngle = 0;
+        let zoomSize = 9.3;
+        let cor = [-0.21, 51.52];
+        map.flyTo({
+            center: cor,
+            zoom: zoomSize,
+            pitch: viewAngle,
+            speed: 0.2, // make the flying slow
+            curve: 1, // change the speed at which it zooms out
+        });
+    });
+
+
+
+
+      //Event listener for layer switch
+      document.getElementById("layer1").addEventListener("click", function(){
+      map.setPaintProperty('NOx','fill-extrusion-opacity',1);
+      map.setPaintProperty('PM10','fill-extrusion-opacity',0);
+      map.setPaintProperty('PM2','fill-extrusion-opacity',0);
+      map.setPaintProperty('CO2','fill-extrusion-opacity',0);
+
+
+      document.getElementById("myDiv").removeAttribute("hidden");
+      document.getElementById("myDiv2").setAttribute("hidden","");
+      document.getElementById("myDiv3").setAttribute("hidden","");
+      document.getElementById("myDiv4").setAttribute("hidden","");
+
+      document.getElementById("legend").removeAttribute("hidden");
+      document.getElementById("legend2").setAttribute("hidden","");
+      document.getElementById("legend3").setAttribute("hidden","");
+      document.getElementById("legend4").setAttribute("hidden","");
+
+
+      });
+
+
+
+      document.getElementById("layer2").addEventListener("click", function(){
+      map.setPaintProperty('NOx','fill-extrusion-opacity',0);
+      map.setPaintProperty('PM10','fill-extrusion-opacity',1);
+      map.setPaintProperty('PM2','fill-extrusion-opacity',0);
+      map.setPaintProperty('CO2','fill-extrusion-opacity',0);
+
+      document.getElementById("myDiv").setAttribute("hidden","");
+      document.getElementById("myDiv2").removeAttribute("hidden");
+      document.getElementById("myDiv3").setAttribute("hidden","");
+      document.getElementById("myDiv4").setAttribute("hidden","");
+
+      document.getElementById("legend").setAttribute("hidden","");
+      document.getElementById("legend2").removeAttribute("hidden");
+      document.getElementById("legend3").setAttribute("hidden","");
+      document.getElementById("legend4").setAttribute("hidden","");
+
+      });
+
+      document.getElementById("layer3").addEventListener("click", function(){
+      map.setPaintProperty('NOx','fill-extrusion-opacity',0);
+      map.setPaintProperty('PM10','fill-extrusion-opacity',0);
+      map.setPaintProperty('PM2','fill-extrusion-opacity',1);
+      map.setPaintProperty('CO2','fill-extrusion-opacity',0);
+
+
+      document.getElementById("myDiv").setAttribute("hidden","");
+      document.getElementById("myDiv2").setAttribute("hidden","");
+      document.getElementById("myDiv3").removeAttribute("hidden");
+      document.getElementById("myDiv4").setAttribute("hidden","");
+
+      document.getElementById("legend").setAttribute("hidden","");
+      document.getElementById("legend2").setAttribute("hidden","");
+      document.getElementById("legend3").removeAttribute("hidden");
+      document.getElementById("legend4").setAttribute("hidden","");
+
+      });
+
+      document.getElementById("layer4").addEventListener("click", function(){
+      map.setPaintProperty('NOx','fill-extrusion-opacity',0);
+      map.setPaintProperty('PM10','fill-extrusion-opacity',0);
+      map.setPaintProperty('PM2','fill-extrusion-opacity',0);
+      map.setPaintProperty('CO2','fill-extrusion-opacity',1);
+
+
+      document.getElementById("myDiv").setAttribute("hidden","");
+      document.getElementById("myDiv2").setAttribute("hidden","");
+      document.getElementById("myDiv3").setAttribute("hidden","");
+      document.getElementById("myDiv4").removeAttribute("hidden");
+
+      document.getElementById("legend").setAttribute("hidden","");
+      document.getElementById("legend2").setAttribute("hidden","");
+      document.getElementById("legend3").setAttribute("hidden","");
+      document.getElementById("legend4").removeAttribute("hidden");
+
+      });
+
+
+
+
+        
+    });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bar Chart</title>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-nightly@5.1.2-dev.20210512/dist/echarts.min.js"></script>
+    <!-- Uncomment this line if you want to dataTool extension
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-nightly@5.1.2-dev.20210512/dist/extension/dataTool.min.js"></script>
+    -->
+    <!-- Uncomment this line if you want to use gl extension
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+    -->
+    <!-- Uncomment this line if you want to echarts-stat extension
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat@latest/dist/ecStat.min.js"></script>
+    -->
+    <!-- Uncomment this line if you want to use map
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-nightly@5.1.2-dev.20210512/map/js/china.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-nightly@5.1.2-dev.20210512/map/js/world.js"></script>
+    -->
+    <!-- Uncomment these two lines if you want to use bmap extension
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=<Your Key Here>"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-nightly@5.1.2-dev.20210512/dist/extension/bmap.min.js"></script>
+    -->
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" 
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+        
+
+
+
+        body {
+            margin: 0;
+            font-family: "Open Sans", sans-serif;
+            color:  #2d6760;
+        }
+
+        
+        section {
+        padding: 50px 0;
+        }
+
+        .section-bg {
+        background-color: #ffffff;
+        }
+
+        .section-title {
+        text-align: center;
+        padding-bottom: 10px;
+        margin-top: 10px;
+        }
+        
+        .section content {
+            text-align: center;
+
+        }
+        .section-title h2 {
+        font-size: 32px;
+        font-weight: 300;
+        margin-bottom: 20px;
+        padding-bottom: 0;
+        color: #555;
+        }
+
+        .section-title p {
+        margin-bottom: 0;
+        }
+
+        
+        
+
+        .axisRed line{
+        stroke: rgb(128, 128, 128);
+        }
+
+        .axisRed path{
+        stroke: rgb(128, 128, 128);
+        }
+
+        .axisRed text{
+        fill: rgb(128, 128, 128);
+        }
+        
+
+        
+
+        .tooltip {
+            position: absolute;
+        }
+
+        .tooltip1 {
+            position: absolute;
+        }
+
+
+        #svgBar1 {
+            
+            margin-top: 0px;
+        }
+
+        #svgBar2 {
+           
+            margin-top: 0px;
+            
+        }
+
+        #svgBar3 {
+           
+           margin-top: 0px;
+           
+       }
+
+       #svgBar4 {
+           
+           margin-top: 0px;
+           
+       }
+       
+       #svgBar5 {
+           
+           margin-top: 0px;
+           
+       }
+
+       #linechart {
+           
+           margin-top: 0px;
+           
+       }
+       #linechart1 {
+           
+           margin-top: 0px;
+           margin-bottom: 30px;
+           
+       }
+
+       .myCircle:hover {
+    stroke: black;
+    }
+
+       
+
+
+    </style>
+
+</head>
+<body>
+
+
+    <section class="section-bg">
+        <div class="section-title">
+            <h1>London Emissions City Level</h1>
+        </div>
+       
+        
+        <div class="container">
+            
+
+            <div class="row">
+                <p>
+                    By looking at London's air pollutant emissions at all levels, it can be seen that overall, 
+                    there is a significant decrease for all pollutant from 2010 to 2013. However, during the 
+                    period from 2013 to 2016, PM10 and CO2 faced a certain degree of rebound, although the downward 
+                    trend in NOx and PM2.5 emissions was maintained.
+                   </p>
+            </div>
+           
+
+            <div class="row">
+              <div class="col">
+                NOx (tons)
+                <div id="svgBar1"></div>
+              </div>
+              <div class="col">
+                PM10 (tons)
+                <div id="svgBar2"></div>
+              </div>
+              <div class="col">
+                PM2.5 (tons)
+                <div id="svgBar3"></div>
+              </div>
+              <div class="col">
+                CO2 (tons)
+                <div id="svgBar4"></div>
+              </div>
+              <div class="col">
+                Legend 
+                <div id="svgBar5" ></div>
+              </div>
+            </div>
+
+
+
+            <div class="row-py5">
+                <div class="col">
+                    <p>
+                          
+                    </p>
+                    <p>
+                        It is possible that this is due to the concentration of measures that caused a qualitative change in emissions by 2013. 
+                        After that, the speed of emission improvement after the Olympics will definitely slow down or even be offset by more economic activities 
+                        due to population growth. 
+                   </p>
+                </div>
+            </div>
+            <div class="row-py5">
+                <div class="col">
+                    
+                    <div id="linechart1" style="width: 100%; height: 160%" ></div>
+                    </div>
+            </div>
+            
+          </div>
+
+
+        
+        
+        </div>
+
+    </section>
+
+    
+
+    <script>
+
+  
+        
+
+    
+        var margin1 = { top: 20, right: 15, bottom: 20, left:50 },
+            width = 200 - margin1.left - margin1.right,
+            height = 160 - margin1.top - margin1.bottom;
+
+        var svg = d3.select("#svgBar1")
+            .append("svg")
+            .attr("width", width + margin1.left + margin1.right)
+            .attr("height", height + margin1.top + margin1.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin1.left + "," + margin1.top + ")");
+
+
+
+            var margin2 = { top: 20, right:15, bottom: 20, left: 50 },
+            width2 = 200 - margin2.left - margin2.right,
+            height2 = 160 - margin2.top - margin2.bottom;
+
+        var svg2 = d3.select("#svgBar2")
+            .append("svg")
+            .attr("width", width2 + margin2.left + margin2.right)
+            .attr("height", height2 + margin2.top + margin2.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+            var margin3 = { top: 20, right:15, bottom: 20, left: 50 },
+            width3 = 200 - margin3.left - margin3.right,
+            height3 = 160 - margin3.top - margin3.bottom;
+
+        var svg3 = d3.select("#svgBar3")
+            .append("svg")
+            .attr("width", width3 + margin3.left + margin3.right)
+            .attr("height", height3 + margin3.top + margin3.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
+            
+
+            var margin4 = { top: 20, right: 0, bottom: 20, left: 70 },
+            width4 = 200 - margin4.left - margin4.right,
+            height4 = 160 - margin4.top - margin4.bottom;
+
+            var svg4 = d3.select("#svgBar4")
+            .append("svg")
+            .attr("width", width4 + margin4.left + margin4.right)
+            .attr("height", height4 + margin4.top + margin4.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin4.left + "," + margin4.top + ")");
+
+            var margin5 = { top: 30, right: 0, bottom: 0, left: 0 },
+            width5 = 190 - margin5.left - margin5.right,
+            height5 = 160 - margin5.top - margin5.bottom;
+
+            var svg5 = d3.select("#svgBar5")
+            .append("svg")
+            .attr("width", width5 + margin5.left + margin5.right)
+            .attr("height", height5 + margin5.top + margin5.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin5.left + "," + margin5.top + ")");
+            
+//linechart
+            var dom = document.getElementById("linechart1");
+            var myChart = echarts.init(dom);
+            var app = {};
+
+            var option;
+
+
+
+            option = {
+            title: {
+            left: 'center',
+            text: 'London Total Population',
+            textStyle: {
+            color: '#2d6760'
+            }
+            },
+            grid:{
+               x:350,
+               y:50,
+               x2:350,
+               y2:20,
+               borderWidth:0
+              },
+
+            tooltip: {
+            borderColor: '#2d6760',
+            trigger: 'axis'
+                },
+            color: '#69b3a2',
+            xAxis: {
+            type: 'category',
+            data: ["2010","2011","2012","2013","2014","2015","2016"]
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+            data: [8061503,8204407,8308831,8417459,8539396,8666927,8769656],
+                type: 'line'
+        }]
+        };
+
+        if (option && typeof option === 'object') {
+        myChart.setOption(option);
+        }
+
+
+        
+
+
+            
+
+        d3.csv("https://raw.githubusercontent.com/yiminf5/visualization/main/Nox2.csv", function (data) {
+            var max = 0;
+            for (var i = 0; i < data.length; i++) {
+                data[i].Domestic = Number(data[i].Domestic);
+                data[i]["Industrial and Commercial"] = Number(data[i]["Industrial and Commercial"]);
+                data[i].Other = Number(data[i].Other);
+                data[i].Resuspension = Number(data[i].Resuspension);
+                data[i].Transport = Number(data[i].Transport);
+                if (max < (data[i].Domestic + data[i]["Industrial and Commercial"] + data[i].Other + data[i].Resuspension + data[i].Transport)) {
+                    max = (data[i].Domestic + data[i]["Industrial and Commercial"] + data[i].Other + data[i].Resuspension + data[i].Transport);
+                }
+            }
+            var subgroups = data.columns.slice(1)
+
+            var groups = d3.map(data, function (d) { return (d.Year) }).keys()
+
+            var x = d3.scaleBand()
+                .domain(groups)
+                .range([0, width])
+                .padding([0.2])
+            svg.append("g")
+            .attr("class", "axisRed")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x).tickSizeOuter(0));
+
+            var y = d3.scaleLinear()
+            
+                .domain([0, max])
+                .range([height, 0]);
+           //append axis color，set ticks    
+            svg.append("g")
+                .attr("class", "axisRed")
+                .call(d3.axisLeft(y).ticks(5));
+                
+                
+
+            var  cs= ["#907fa4", "#a58faa", "#a6d6d6", "#ff7b54", "#da7f8f"];//5 colors
+            var color = d3.scaleOrdinal()
+                .domain(subgroups)
+                .range(cs)
+
+                //stack generator
+            var stackedData = d3.stack()
+                .keys(subgroups)
+                (data)
+
+
+            var tooltip = d3.select("#svgBar1")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("border", "solid")
+                .style("border-width", "2px")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+
+            var mouseover = function (d) {
+                var subgroupName = d3.select(this.parentNode).datum().key;
+                var subgroupValue = d.data[subgroupName];
+                tooltip
+                    .html( subgroupName + "<br>" + "Value: " + subgroupValue)
+                    .transition()
+                    .duration(800) //longer to easier be seen
+                    .style("opacity", 0.9)      
+            }
+            var mousemove = function (d) {
+                tooltip
+                    .style("left", (d3.mouse(this)[0] + 90) + "px")
+                    .style("top", (d3.mouse(this)[1]) + "px")
+            }
+            var mouseleave = function (d) {
+                tooltip
+                .transition()
+                    .duration(800) //longer to easier be seen
+                    .style("opacity", 0)
+            }
+
+
+
+            svg.append("g")
+                .selectAll("g")
+                .data(stackedData)
+                .enter().append("g")
+                .attr("fill", function (d) { return color(d.key); })
+                .selectAll("rect")
+                
+                .data(function (d) { return d; })
+                .enter()
+                .append("rect")
+                
+                
+                .attr("x", function (d) { return x(d.data.Year); })
+                .attr("y", function (d) { return y(d[1]); })
+                .attr("height", function (d) { return y(d[0]) - y(d[1]); })
+                .attr("width", x.bandwidth())
+                .attr("stroke", "grey")
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave)
+
+                
+               
+
+              
+                // legend color
+            svg.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("rect")
+                .attr("width", 10)
+                .attr("height", 5)
+                .attr("x", 200)
+                .attr("y", (d, i) => 25 * i)
+                .attr("fill", (d, i) => cs[i])
+
+
+            svg.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("text")
+                .attr("x", 220)
+                .attr("y", (d, i) => 25 * i+10)
+                .text(d=>d)
+
+            
+        })
+
+
+
+
+
+        d3.csv("https://raw.githubusercontent.com/yiminf5/visualization/main/PM102.csv", function (data) {
+            var max = 0;
+            for (var i = 0; i < data.length; i++) {
+                data[i].Domestic = Number(data[i].Domestic);
+                data[i]["Industrial and Commercial"] = Number(data[i]["Industrial and Commercial"]);
+                data[i].Other = Number(data[i].Other);
+                data[i].Resuspension = Number(data[i].Resuspension);
+                data[i].Transport = Number(data[i].Transport);
+                if (max < (data[i].Domestic + data[i]["Industrial and Commercial"] + data[i].Other + data[i].Resuspension + data[i].Transport)) {
+                    max = (data[i].Domestic + data[i]["Industrial and Commercial"] + data[i].Other + data[i].Resuspension + data[i].Transport);
+                }
+            }
+            var subgroups = data.columns.slice(1)
+
+            var groups = d3.map(data, function (d) { return (d.Year) }).keys()
+
+            var x = d3.scaleBand()
+                .domain(groups)
+                .range([0, width2])
+                .padding([0.2])
+            svg2.append("g")
+            .attr("class", "axisRed")
+                .attr("transform", "translate(0," + height2 + ")")
+                .call(d3.axisBottom(x).tickSizeOuter(0));
+
+            var y = d3.scaleLinear()
+                .domain([0, max])
+                .range([height2, 0]);
+            svg2.append("g")
+            .attr("class", "axisRed")
+                .call(d3.axisLeft(y).ticks(5));
+
+            var  cs= ["#907fa4", "#a58faa", "#a6d6d6", "#ff7b54", "#da7f8f"];//5 colors
+            var color = d3.scaleOrdinal()
+                .domain(subgroups)
+                .range(cs)
+
+            var stackedData = d3.stack()
+                .keys(subgroups)
+                (data)
+
+
+            var tooltip = d3.select("#svgBar2")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("border", "solid")
+                .style("border-width", "2px")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+
+            var mouseover = function (d) {
+                var subgroupName = d3.select(this.parentNode).datum().key;
+                var subgroupValue = d.data[subgroupName];
+                tooltip
+                    .html(subgroupName + "<br>" + "Value: " + subgroupValue)
+                    .transition()
+                    .duration(800) //longer to easier be seen
+                    .style("opacity", 0.9)
+            }
+            var mousemove = function (d) {
+                tooltip
+                    .style("left", (d3.mouse(this)[0] + 90) + "px")
+                    .style("top", (d3.mouse(this)[1]) + "px")
+            }
+            var mouseleave = function (d) {
+                tooltip
+                .transition()
+                    .duration(800) //longer to easier be seen
+                    .style("opacity", 0)
+            }
+
+
+
+            svg2.append("g")
+                .selectAll("g")
+                .data(stackedData)
+                .enter().append("g")
+                .attr("fill", function (d) { return color(d.key); })
+                .selectAll("rect")
+                .data(function (d) { return d; })
+                .enter().append("rect")
+                .attr("x", function (d) { return x(d.data.Year); })
+                .attr("y", function (d) { return y(d[1]); })
+                .attr("height", function (d) { return y(d[0]) - y(d[1]); })
+                .attr("width", x.bandwidth())
+                .attr("stroke", "grey")
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave)
+
+            svg2.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("rect")
+                .attr("width", 10)
+                .attr("height", 5)
+                .attr("x", 480)
+                .attr("y", (d, i) => 25 * i)
+                .attr("fill", (d, i) => cs[i])
+
+
+            svg2.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("text")
+                .attr("x", 500)
+                .attr("y", (d, i) => 25 * i+10)
+                .text(d=>d)
+        })
+
+
+
+        d3.csv("https://raw.githubusercontent.com/yiminf5/visualization/main/PM22.csv", function (data) {
+            var max = 0;
+            for (var i = 0; i < data.length; i++) {
+                data[i].Domestic = Number(data[i].Domestic);
+                data[i]["Industrial and Commercial"] = Number(data[i]["Industrial and Commercial"]);
+                data[i].Other = Number(data[i].Other);
+                data[i].Resuspension = Number(data[i].Resuspension);
+                data[i].Transport = Number(data[i].Transport);
+                if (max < (data[i].Domestic + data[i]["Industrial and Commercial"] + data[i].Other + data[i].Resuspension + data[i].Transport)) {
+                    max = (data[i].Domestic + data[i]["Industrial and Commercial"] + data[i].Other + data[i].Resuspension + data[i].Transport);
+                }
+            }
+            var subgroups = data.columns.slice(1)
+
+            var groups = d3.map(data, function (d) { return (d.Year) }).keys()
+
+            var x = d3.scaleBand()
+                .domain(groups)
+                .range([0, width3])
+                .padding([0.2])
+            svg3.append("g")
+            .attr("class", "axisRed")
+                .attr("transform", "translate(0," + height3 + ")")
+                .call(d3.axisBottom(x).tickSizeOuter(0));
+
+            var y = d3.scaleLinear()
+                .domain([0, max])
+                .range([height3, 0]);
+            svg3.append("g")
+            .attr("class", "axisRed")
+                .call(d3.axisLeft(y).ticks(5));
+
+            var  cs= ["#907fa4", "#a58faa", "#a6d6d6", "#ff7b54", "#da7f8f"];//5 colors
+            var color = d3.scaleOrdinal()
+                .domain(subgroups)
+                .range(cs)
+
+            var stackedData = d3.stack()
+                .keys(subgroups)
+                (data)
+
+
+            var tooltip = d3.select("#svgBar3")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("border", "solid")
+                .style("border-width", "2px")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+
+            var mouseover = function (d) {
+                var subgroupName = d3.select(this.parentNode).datum().key;
+                var subgroupValue = d.data[subgroupName];
+                tooltip
+                    .html(subgroupName + "<br>" + "Value: " + subgroupValue)
+                    .transition()
+                    .duration(800) //longer to easier be seen
+                    .style("opacity", 0.9)
+            }
+            var mousemove = function (d) {
+                tooltip
+                    .style("left", (d3.mouse(this)[0] + 90) + "px")
+                    .style("top", (d3.mouse(this)[1]) + "px")
+            }
+            var mouseleave = function (d) {
+                tooltip
+                .transition()
+                    .duration(800) //longer to easier be seen
+                    .style("opacity", 0)
+            }
+
+
+
+            svg3.append("g")
+                .selectAll("g")
+                .data(stackedData)
+                .enter().append("g")
+                .attr("fill", function (d) { return color(d.key); })
+                .selectAll("rect")
+                .data(function (d) { return d; })
+                .enter().append("rect")
+                .attr("x", function (d) { return x(d.data.Year); })
+                .attr("y", function (d) { return y(d[1]); })
+                .attr("height", function (d) { return y(d[0]) - y(d[1]); })
+                .attr("width", x.bandwidth())
+                .attr("stroke", "grey")
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave)
+
+            svg3.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("rect")
+                .attr("width", 10)
+                .attr("height", 5)
+                .attr("x", 480)
+                .attr("y", (d, i) => 25 * i)
+                .attr("fill", (d, i) => cs[i])
+
+
+            svg3.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("text")
+                .attr("x", 500)
+                .attr("y", (d, i) => 25 * i+10)
+                .text(d=>d)
+        })
+
+
+        d3.csv("https://raw.githubusercontent.com/yiminf5/visualization/main/CO22.csv", function (data) {
+            var max = 0;
+            for (var i = 0; i < data.length; i++) {
+                data[i].Domestic = Number(data[i].Domestic);
+                data[i]["Industrial and Commercial"] = Number(data[i]["Industrial and Commercial"]);
+                data[i].Other = Number(data[i].Other);
+                data[i].Resuspension = Number(data[i].Resuspension);
+                data[i].Transport = Number(data[i].Transport);
+                if (max < (data[i].Domestic + data[i]["Industrial and Commercial"] + data[i].Other + data[i].Resuspension + data[i].Transport)) {
+                    max = (data[i].Domestic + data[i]["Industrial and Commercial"] + data[i].Other + data[i].Resuspension + data[i].Transport);
+                }
+            }
+            var subgroups = data.columns.slice(1)
+
+            var groups = d3.map(data, function (d) { return (d.Year) }).keys()
+
+            var x = d3.scaleBand()
+                .domain(groups)
+                .range([0, width4])
+                .padding([0.2])
+            svg4.append("g")
+            .attr("class", "axisRed")
+                .attr("transform", "translate(0," + height4 + ")")
+                .call(d3.axisBottom(x).tickSizeOuter(0));
+
+            var y = d3.scaleLinear()
+                .domain([0, max])
+                .range([height4, 0]);
+            svg4.append("g")
+            .attr("class", "axisRed")
+                .call(d3.axisLeft(y).ticks(5));
+
+            var  cs= ["#907fa4", "#a58faa", "#a6d6d6", "#ff7b54", "#da7f8f"];//5 colors
+            var color = d3.scaleOrdinal()
+                .domain(subgroups)
+                .range(cs)
+
+            var stackedData = d3.stack()
+                .keys(subgroups)
+                (data)
+
+
+            var tooltip = d3.select("#svgBar4")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("border", "solid")
+                .style("border-width", "2px")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+
+            var mouseover = function (d) {
+                var subgroupName = d3.select(this.parentNode).datum().key;
+                var subgroupValue = d.data[subgroupName];
+                tooltip
+                    .html( subgroupName + "<br>" + "Value: " + subgroupValue)
+                    .transition()
+                    .duration(800) //longer to easier be seen
+                    .style("opacity", 0.9)
+            }
+            var mousemove = function (d) {
+                tooltip
+                    .style("left", (d3.mouse(this)[0] + 90) + "px")
+                    .style("top", (d3.mouse(this)[1]) + "px")
+            }
+            var mouseleave = function (d) {
+                tooltip
+                .transition()
+                    .duration(800) //longer to easier be seen
+                    .style("opacity", 0)
+            }
+
+
+
+            svg4.append("g")
+                .selectAll("g")
+                .data(stackedData)
+                .enter().append("g")
+                .attr("fill", function (d) { return color(d.key); })
+                .selectAll("rect")
+                .data(function (d) { return d; })
+                .enter().append("rect")
+                .attr("x", function (d) { return x(d.data.Year); })
+                .attr("y", function (d) { return y(d[1]); })
+                .attr("height", function (d) { return y(d[0]) - y(d[1]); })
+                .attr("width", x.bandwidth())
+                .attr("stroke", "grey")
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave)
+
+            svg4.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("rect")
+                .attr("width", 10)
+                .attr("height", 5)
+                .attr("x", 220)
+                .attr("y", (d, i) => 25 * i)
+                .attr("fill", (d, i) => cs[i])
+
+
+            svg4.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("text")
+                .attr("x", 220)
+                .attr("y", (d, i) => 25 * i+10)
+                .text(d=>d)
+        })
+
+
+        d3.csv("https://raw.githubusercontent.com/yiminf5/visualization/main/CO22.csv", function (data) {
+            var size = 20
+
+            var subgroups = data.columns.slice(1)
+
+            var  cs= ["#907fa4", "#a58faa", "#a6d6d6", "#ff7b54", "#da7f8f"];//5 colors
+            var color = d3.scaleOrdinal()
+                .domain(subgroups)
+                .range(cs)
+
+            var stackedData = d3.stack()
+                .keys(subgroups)
+                (data)
+
+            var tooltip = d3.select("#svgBar5")
+                .append("div")
+                .style("opacity", 0)
+                .attr("class", "tooltip")
+                .style("background-color", "white")
+                .style("border", "solid")
+                .style("border-width", "1px")
+                .style("border-radius", "5px")
+                .style("padding", "10px")
+
+            var mouseover = function (d) {
+                var subgroupName = d3.select(this.parentNode).datum().key;
+                var subgroupValue = d.data[subgroupName];
+                tooltip
+                    .html("subgroup: " + subgroupName + "<br>" + "Value: " + subgroupValue)
+                    .style("opacity", 1)
+            }
+
+            svg5.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("rect")
+                .attr("width", 10)
+                .attr("height", 5)
+                .attr("x", 0)
+                .attr("y", (d, i) => 25 * i)
+                .attr("fill", (d, i) => cs[i])
+
+
+            svg5.selectAll(".legend")
+                .data(subgroups)
+                .enter()
+                .append("text")
+                .style("font-size", "14px")
+                .style("fill", '#555')
+                .attr("x", 11)
+                .attr("y", (d, i) => 25 * i+8)
+                .text(d=>d)
+        })
+
+
+
+
+    </script>
+
+</body>
+</html>
