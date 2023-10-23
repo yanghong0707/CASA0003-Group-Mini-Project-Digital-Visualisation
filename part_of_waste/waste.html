@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+    <script src="https://unpkg.com/d3-v6-tip@1.0.6/build/d3-v6-tip.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bumbeishvili/d3-tip-for-v6@4/d3-tip.min.css">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            box-sizing: content-box;
+            background-image: url('../image/chart.jpg');
+            background-size: 100% 100%;
+            background-attachment: fixed;
+
+        }
+
+        .title,
+        .content,
+        #line {
+            /* background-color: lightgray; */
+            border-radius: 8px;
+            margin: 8px;
+
+        }
+
+        .title{
+             color: #2d6760;
+            text-align: center;
+        }
+        .content {
+            text-align: justify;
+            color: #555;
+        }
+
+        .chart {
+            border-style: solid;
+            border-width: 2px;
+            display: grid;
+            grid-template-rows: 10% 38% 50%;
+            width: 50vw;
+            margin: 0 6%;
+            height: 717px;
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="chart">
+        <div class="title">
+            <h1>Waste management in London from 2003-2019</h1>
+        </div>
+        <div class="content">
+            <p>
+             Data is from: <a href="https://data.london.gov.uk/dataset/local-authority-collected-waste-management-london/ " target="_blank">London datastore</a><br><br>
+             The chart below shows the change of waste management in London from 2003 to 2019. Landfill refers to the proportion of waste buried into underground. Incineration with EfW means waste is burned at temperatures above 850 degrees and used to provide energy. According to the chart, it is not difficult to find that from 2003 to 2019, the waste management in London is more environmentally friendly.<br><br> In 2003, 70% of the waste was directly buried underground, and only 19% of the waste was burned to provide energy. By 2019, 3% of the waste was directly buried, while 61% of the waste was burned to provide energy. The most obvious change was in 2010-2011, during which the Landfill rate decreased by 14%, while the Incineration with EFW increased by 12%. We suspect that this may be related to the environmental policy of the London Olympic Games.
+            </p>
+        </div>
+        <div id="line">
+
+        </div>
+
+    </section>
+    <script type="module">
+
+        class Line {
+            constructor(id, title) {
+                this.id = id;
+                this.title = title;
+
+                this.initSvg();
+            }
+
+            async handleData() {
+                this.data = await d3.csv("https://raw.githubusercontent.com/ZhengLiang-123/visualization/main/waste1.csv");
+
+                this.arr = Object.keys(this.data[0]).filter((d) => d !== "year")
+                this.color = ["#A52A2A", "#6495ED", "#a6d6d6", "#228B22", "#ff7b54"];
+            }
+
+            getLineData() {
+                this.lineData = d3.rollups(
+                    this.data,
+                    (d) => d3.mean(d, (v) => +v[this.arr]),
+                    (d) => d3.timeYear(d3.timeParse("%Y")(d.year)).getFullYear()
+                );
+                this.lineData.sort((a, b) => (a[0] > b[0] ? 1 : -1));
+                this.lineData.forEach((d) => {
+                    d[0] = d3.timeParse("%Y")(d[0]);
+                });
+            }
+
+            getWH(node) {
+                this.width = node.node().getBoundingClientRect().width;
+                this.height = node.node().getBoundingClientRect().height;
+            }
+            async initSvg() {
+                await this.handleData();
+                let div = d3.select(`#${this.id}`);
+                this.getWH(div);
+
+                this.margin = { left: 60, right: 20, top: 40, bottom: 30 };
+                this.innerW = this.width - this.margin.left - this.margin.right;
+                this.innerH = this.height - this.margin.top - this.margin.bottom;
+                this.svg = div
+                    .append("svg")
+                    .attr("width", this.width)
+                    .attr("height", this.height);
+                this.ChartArea = this.svg
+                    .append("g")
+                    .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
+
+                this.ChartArea.append("text")
+                    .attr("transform", `translate(${this.innerW / 2},${this.innerH + 30})`)
+                    .text("Year");
+                this.ChartArea.append("text")
+                    .attr("transform", `translate(${-55},${this.innerH / 4}) rotate(90)`)
+                    .text("Waste management");
+                //title
+                this.svg
+                    .append("text")
+                    .attr("x", 80)
+                    .attr("y", 20)
+                    .text(this.title)
+                    .attr("font-size", "23");
+                this.DrawArea = this.ChartArea.append("g");
+
+                this.x = d3
+                    .scaleTime()
+                    .range([0, this.innerW])
+                    .domain(d3.extent(this.data, (d) => d3.timeParse("%Y")(d.year)));
+                this.y = d3.scaleLinear().range([this.innerH, 0]).domain([0, 1]);
+                this.AxisY = this.ChartArea.append("g");
+                this.AxisX = this.ChartArea.append("g").attr(
+                    "transform",
+                    `translate(0,${this.innerH})`
+                );
+                this.AxisX.call(d3.axisBottom(this.x));
+
+                this.line = d3
+                    .line()
+                    .x((d) => this.x(d3.timeParse("%Y")(d.year)))
+                    .y((d) => this.y(+d.value));
+                //   .curve(d3.curveBasis);
+                this.tips();
+                this.drawLine();
+            }
+
+            drawLine() {
+                this.AxisY.call(d3.axisLeft(this.y));
+                this.arr.forEach((d, i) => {
+                    this.lineData = this.getDataByCol(d);
+                    this.DrawArea.append("path")
+                        .datum(this.lineData)
+                        .attr("class", (d) => d.year)
+                        .attr("d", this.line)
+                        .attr("stroke", this.color[i])
+                        .attr("stroke-width", 1)
+                        .attr("fill", "none");
+
+                    //circle
+                    this.DrawArea.selectAll("mycircle")
+                        .data(this.lineData)
+                        .join("circle")
+                        .attr("class", (d) => d.year)
+                        .attr("cx", (d) => this.x(d3.timeParse("%Y")(d.year)))
+                        .attr("cy", (d) => this.y(+d.value))
+                        .attr("r", 5)
+                        .attr("stroke", this.color[i])
+                        .attr("stroke-width", 1)
+                        .attr("fill", this.color[i])
+                        .on("mouseover", this.tool_tip.show)
+                        .on("mouseout", this.tool_tip.hide);
+                });
+
+                this.addLegend(
+                    d3.scaleOrdinal().domain(d3.range(5)).range(this.color),
+                    this.svg,
+                    100,
+                    20,
+                    5,
+                    "divise"
+                );
+            }
+
+            getDataByCol(col) {
+                return this.data.map((d) => {
+                    return { year: d.year, value: +d[col], col: col };
+                });
+            }
+            tips() {
+                this.tool_tip = d3
+                    .tip()
+                    .attr("class", "d3-tip")
+                    .offset([0, 0])
+                    .html(
+                        (e, d) => ` <li>${d.col}</li><li>${d.year}</li><li><strong>${d3.format(
+                            ".1%"
+                        )(d.value)}</strong>
+      `
+                    );
+                this.svg.call(this.tool_tip);
+            }
+            addLegend(color, svg, x, y, count = 5, type = "linear") {
+                const position = { top: y, left: x };
+                const domain = color.domain();
+                const g = svg
+                    .append("g")
+                    .attr("transform", `translate(${position.left},${position.top})`);
+                count = type != "linear" ? domain.length : count;
+                const data = Array(count).fill(1);
+                data.forEach((d, i) => {
+                    if (type === "linear") {
+                        data[i] = ((domain[1] + domain[0]) / count) * i;
+                    } else {
+                        data[i] = domain[i];
+                    }
+                });
+                const h = 20,
+                    w = 20;
+
+                g.selectAll("myrect")
+                    .data(data)
+                    .join("rect")
+                    .attr("fill", (d) => color(d))
+                    .attr("y", (d, i) => i * h + 10)
+                    .attr("x", 0)
+                    .attr("width", w)
+                    .attr("height", h);
+                g.selectAll("myrect")
+                    .data(data)
+                    .join("text")
+                    .attr("fill", "gray")
+                    .attr("y", (d, i) => i * h + 26)
+                    .attr("x", 30)
+                    .text((d, i) => this.arr[i]);
+            }
+        }
+
+        new Line("line", " ");
+
+
+
+
+    </script>
+</body>
+
+</html>

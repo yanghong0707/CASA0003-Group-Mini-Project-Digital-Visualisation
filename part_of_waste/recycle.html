@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <title>Recycle Rate</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.js"></script>
+
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .map-overlay {
+      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      position: absolute;
+      width: 17%;
+      top: 0;
+      left: 0;
+      padding: 10px;
+    }
+
+    .map-overlay .map-overlay-inner {
+      background-color: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
+      border-radius: 3px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .map-overlay table {
+      border: none;
+      width: 100%;
+    }
+
+    .map-overlay h2 {
+      line-height: 24px;
+      display: block;
+      margin: 0 0 10px;
+    }
+
+    #console {
+      position: absolute;
+      margin: 10px;
+      width: 240px;
+      background-color: #e8efed;
+      padding: 10px 20px;
+    }
+
+    .label {
+      width: 15%;
+      display: inline-block;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 14px;
+      line-height: 20px;
+      margin-bottom: 10px;
+    }
+      
+    h3 {
+      font-size: 12px;
+      line-height: 20px;
+      margin-bottom: 10px;
+    }
+      
+    .row {
+      height: 12px;
+      width: 100%;
+    }
+
+    .colors {
+      background: linear-gradient(to right,
+          #fff,
+          #a9cbae,
+          #63ac64,
+          #3b993b,
+          #13880f,
+          darkgreen);
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id='map'></div>
+  <div id="console">
+    <div class="session">
+      <div class='map-overlay-inner'>
+
+        <h2 id="laname">Hover over a local authority</h2>
+        Recycle Rate: <span id="RecycleValue"></span> %
+      </div>
+ 
+      <h2>Year: <label id="active-year">2003</label></h2>
+      <input id="slider" class="row" type="range" min="2003" max="2019" step="1" value="2003" />
+        
+     <h2> Data is from: <a href="https://data.london.gov.uk/dataset/london-borough-profiles/" target="_blank">London datastore</a></h2>
+        
+    </div>
+    <div class="session">
+      <h2>Recycle Rate</h2>
+      <div class="row colors"></div>
+      <div class="row labels">
+        <div class="label">0</div>
+        <div class="label">10</div>
+        <div class="label">20</div>
+        <div class="label">30</div>
+        <div class="label">40</div>
+        <div class="label">50+</div>         
+      </div>
+      <div id="line">
+      </div>
+    <h3><br>What makes us concerned is that Newham, the London Olympic Stadium (the main stadium of the 2012 London Olympics) is located in this area<br><br>In 2010-2011 (the preparatory period for the London Olympics), the recycle rate in this borough increase from 15% to 23%, but after the Olympics, the recycling rate continued to decline until 2017.</h3>
+    </div>
+  </div>
+
+
+  <script type="module">
+    // reference code
+    // https://docs.mapbox.com/help/tutorials/show-changes-over-time/#get-started
+    // reference code
+    // https://docs.mapbox.com/mapbox-gl-js/api/map/#map#addsource
+
+    mapboxgl.accessToken =
+      "pk.eyJ1Ijoic2FubWFudSIsImEiOiJja20wNnlveTgxbDVrMm9vNnpsbmtraW9kIn0.zj1M_Y6W9LOP4s3lnM_ghQ"; // Put your Mapbox Public Access token here
+
+    // Load a new map in the 'map' HTML div
+    var map = new mapboxgl.Map({
+      container: "map", // container id
+      style: "mapbox://styles/sanmanu/cko19b97j0hh418qq1eh1muv1", // stylesheet location
+      center: [-0.1, 51.5], // starting position [lng, lat]
+      zoom: 9.5, // starting zoom
+    });
+
+       
+      
+    map.on("load", async function () {
+      var filterYear = ["==", ["number", ["get", "year"]], 2003];
+      
+
+      let source = await get_geoJson();
+      map.addSource("source", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          name: "london",
+          features: source,
+        },
+      });
+      map.addLayer({
+        id: "data_recycle",
+        type: "fill",
+        source: "source",
+        paint: {
+          "fill-color": [
+            "interpolate",
+            ["linear"],
+            ["number", ["get", "value"]],
+            0,
+            "#fff",
+            50,
+            "darkgreen",
+          ],
+          "fill-outline-color": "white",
+          "fill-opacity": 0.7,
+        },
+        filter: ["all", filterYear],
+      },'points');
+
+      //slider
+      document.getElementById("slider").addEventListener("input", function (e) {
+        var year = parseInt(e.target.value);
+        // update the map
+        filterYear = ["==", ["number", ["get", "year"]], year];
+        map.setFilter("data_recycle", ["all", filterYear]);
+        // update text in the UI
+        document.getElementById("active-year").innerText = year;
+      });
+
+      map.addLayer({
+        //Add the fill layer. It is not visible (opacity 0) and is used only as the basis of the hover selection
+        id: "LocalAuthorities",
+        type: "fill",
+        source: {
+          type: "vector",
+          url: "mapbox://duncan2001.3lm7j96x", // Your Mapbox tileset Map ID
+        },
+        "source-layer": "GB_LocalAuth_3-d0941q", // name of tilesets
+        layout: {
+          visibility: "visible",
+        },
+        paint: {
+          "fill-color": "#fff",
+          "fill-opacity": 0,
+        },
+      },'points');
+
+      map.addLayer({
+        // Add the line highlight layer. This layer has a filter, which initially is empty.
+        id: "lahighlight",
+        type: "line",
+        source: {
+          type: "vector",
+          url: "mapbox://duncan2001.3lm7j96x", // Your Mapbox tileset Map ID
+        },
+        "source-layer": "GB_LocalAuth_3-d0941q", // name of tilesets
+        layout: {
+          visibility: "visible",
+        },
+        paint: {
+          "line-color": "#adf",
+          "line-width": 4,
+        },
+        filter: ["==", "name", "1"],
+      },'points');
+      map.on("mousemove", function (e) {
+        // This is the main event listner which is triggered when the mouse moves
+        var la = map.queryRenderedFeatures(e.point, {
+          // This queries whether the mouse is over an object in the LocalAuthorities layer
+          layers: ["LocalAuthorities"],
+        });
+
+        if (la.length == 1) {
+          // This if statement is run when the mouse is over a local authority
+
+          map.setFilter("lahighlight", ["==", "name", la[0].properties.name]); // Filter the highlight layer to show the local authority outline
+
+
+          getRecycleValue(la, source);
+          // if not has color ,do not show value in name
+          let data = source.filter(d => d.borough === la[0].properties.name)
+
+          document.getElementById("laname").innerHTML = data.length > 0 ? la[0].properties.name : "" ; // Change the name in the top left box to show the local authority name
+
+
+
+          //draw Line
+          new Line(data, "line", `Recycle rate By year in ${la[0].properties.name} `)
+
+
+        } else {
+          map.setFilter("lahighlight", ["==", "name", "null"]);
+          document.getElementById("laname").innerHTML =
+            "Hover over a local authority";
+        }
+      });
+
+      //   map.legendControl.addLegend(document.getElementById("legend").innerHTML);
+    });
+      
+
+    //get data       
+    async function get_geoJson() {
+      let recycle_data = await d3.csv("https://raw.githubusercontent.com/ZhengLiang-123/visualization/main/recycle rate.csv")
+      let geojson = await d3.json("https://raw.githubusercontent.com/ZhengLiang-123/visualization/main/london_boroughs.json");
+      //union the data
+
+      let row0 = recycle_data[0];
+      // borough
+
+      let keys = Object.keys(row0).filter((d) => d !== "borough");
+
+      // get a  new data like borough,year,value
+      let recycle = [];
+      keys.forEach((d) => {
+        recycle_data.forEach((v) => {
+          recycle.push({ year: +d, borough: v.borough, value: +v[d] });
+        });
+      });
+
+      recycle.forEach((d) => {
+        let value = geojson.features.find((v) => v.properties.name === d.borough);
+        d.type = value.type;
+        d.properties = { ...d };
+        d.geometry = value.geometry;
+      });
+      return recycle;
+    }
+
+    function getRecycleValue(la, source) {
+      let name = la[0].properties.name;
+      let year = d3.select("#slider").property("value");
+      let value = source.find((d) => d.year === +year && d.borough === name);
+      d3.select("#RecycleValue").html(value?.value);
+    }
+
+
+    //line
+
+    class Line {
+      constructor(data, id, title) {
+        this.data = JSON.parse(JSON.stringify(data));
+        if (this.data.length > 0) {
+          this.id = id;
+          this.title = title;
+          this.handleData();
+          this.initSvg();
+          this.drawLine();
+        } else {
+          d3.select(`#${id}`).selectAll("*").remove()
+        }
+
+      }
+
+      handleData() {
+        this.lineData = this.data
+        this.lineData.forEach(d => {
+          d.year = new Date(`${d.year}-1-1`)
+        })
+      }
+
+      initSvg() {
+        let div = d3.select(`#${this.id}`);
+        div.style('margin-top', "10px")
+        div.selectAll("*").remove()
+        this.getWH(div);
+
+        this.margin = { left: 20, right: 10, top: 30, bottom: 20 };
+        this.innerW = this.width - this.margin.left - this.margin.right;
+        this.innerH = this.height - this.margin.top - this.margin.bottom;
+        this.svg = div
+          .append("svg")
+          .attr("width", this.width)
+          .attr("height", this.height);
+        this.ChartArea = this.svg
+          .append("g")
+          .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
+
+
+        this.svg.append("text").attr("x", 0).attr("y", 20).text(this.title).attr('font-size', 12);
+        this.DrawArea = this.ChartArea.append("g");
+
+        this.x = d3
+          .scaleTime()
+          .range([0, this.innerW])
+          .domain(d3.extent(this.lineData, (d) => d.year));
+        this.y = d3
+          .scaleLinear()
+          .range([this.innerH, 0])
+
+          .domain([0, 60]);
+        // .domain( [0,d3.max(this.lineData, (d) => d.value)]  );
+        this.AxisY = this.ChartArea.append("g");
+        this.AxisX = this.ChartArea.append("g").attr(
+          "transform",
+          `translate(0,${this.innerH})`
+        );
+        this.AxisX.call(d3.axisBottom(this.x));
+
+        this.line = d3
+          .line()
+          .x((d) => this.x(d.year))
+          .y((d) => this.y(d.value))
+          .curve(d3.curveBasis);
+      }
+
+      drawLine() {
+        this.AxisY.call(d3.axisLeft(this.y).ticks(6));
+        this.DrawArea.append("path")
+          .datum(this.lineData)
+          .attr("class", (d) => d.borough) 
+          .attr("d", this.line)
+          .attr("stroke", "green")
+          .attr("stroke-width", 1)
+          .attr("fill", "none");
+      }
+      getWH(node) {
+        this.width = 240
+        this.height = 200
+      }
+    }
+ 
+    
+ var size = 200;
+ 
+// implementation of CustomLayerInterface to draw a pulsing dot icon on the map
+// see https://docs.mapbox.com/mapbox-gl-js/api/#customlayerinterface for more info
+var pulsingDot = {
+width: size,
+height: size,
+data: new Uint8Array(size * size * 4),
+ 
+// get rendering context for the map canvas when layer is added to the map
+onAdd: function () {
+var canvas = document.createElement('canvas');
+canvas.width = this.width;
+canvas.height = this.height;
+this.context = canvas.getContext('2d');
+},
+ 
+// called once before every frame where the icon will be used
+render: function () {
+var duration = 1000;
+var t = (performance.now() % duration) / duration;
+ 
+var radius = (size / 2) * 0.3;
+var outerRadius = (size / 2) * 0.7 * t + radius;
+var context = this.context;
+ 
+// draw outer circle
+context.clearRect(0, 0, this.width, this.height);
+context.beginPath();
+context.arc(
+this.width / 2,
+this.height / 2,
+outerRadius,
+0,
+Math.PI * 2
+);
+context.fillStyle = 'rgba(255, 200, 200,' + (1 - t) + ')';
+context.fill();
+ 
+// draw inner circle
+context.beginPath();
+context.arc(
+this.width / 2,
+this.height / 2,
+radius,
+0,
+Math.PI * 2
+);
+context.fillStyle = 'rgba(255, 100, 100, 1)';
+context.strokeStyle = 'white';
+context.lineWidth = 2 + 4 * (1 - t);
+context.fill();
+context.stroke();
+ 
+// update this image's data with data from the canvas
+this.data = context.getImageData(
+0,
+0,
+this.width,
+this.height
+).data;
+ 
+// continuously repaint the map, resulting in the smooth animation of the dot
+map.triggerRepaint();
+ 
+// return `true` to let the map know that the image was updated
+return true;
+}
+};
+ 
+map.on('load', function () {
+map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 });
+ 
+map.addSource('points', {
+'type': 'geojson',
+'data': {
+'type': 'FeatureCollection',
+'features': [
+{
+'type': 'Feature',
+'geometry': {
+'type': 'Point',
+'coordinates': [-0.0127, 51.5462]
+},
+    'properties': {
+        'title': 'Queen Elizabeth Olympic Park'
+    }
+}
+]
+}
+});
+map.addLayer({
+'id': 'points',
+'type': 'symbol',
+'source': 'points',
+'layout': {
+'icon-image': 'pulsing-dot',
+'text-field': ['get', 'title'],
+'text-font': [
+'Open Sans Semibold',
+'Arial Unicode MS Bold'
+],
+'text-offset': [0, 1.25],
+'text-anchor': 'top'
+}
+});
+});
+    
+    
+    
+
+
+      
+
+  </script>
+
+</body>
+
+</html>

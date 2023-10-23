@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Comparison map of energy</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css"
+      type="text/css"
+    />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css" rel="stylesheet" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
+    <script charset="utf-8" src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.js"></script>
+    <script
+      charset="utf-8"
+      src="https://cdnjs.cloudflare.com/ajax/libs/dimple/2.3.0/dimple.latest.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://lib.baomitu.com/echarts/4.9.0-rc.1/echarts.js"
+    ></script>
+    <script type="text/javascript" src="../js/Boroughs.js"></script>
+    <style>
+      p {
+        font-size: 14px;
+      }
+      h1 {
+        font-size: 20px;
+        line-height: 30px;
+      }
+
+      h2 {
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 10px;
+      }
+      h3 {
+        font-size: 8px;
+      }
+      h4 {
+        font-size: 14px;
+        margin: 0px;
+        font-weight: normal;
+      }
+      h5 {
+        font-size: 14px;
+        margin-top: 10px;
+        margin-bottom: 0px;
+        font-weight: bold;
+      }
+      a {
+        text-decoration: none;
+        color: #2dc4b2;
+      }
+
+      .row {
+        height: 12px;
+        width: 100%;
+      }
+
+      .colors {
+        background: linear-gradient(to right, 
+          #fff,
+          #a9cbae,
+          #63ac64,
+          #3b993b,
+          #13880f,
+          darkgreen);
+        margin-bottom: 5px;
+      }
+      .slider {
+        margin-bottom: 20px;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      .map {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .wrapper {
+        position: relative;
+        margin: 10px;
+        margin-top: 100px;
+        width: 300px;
+        background-color: white;
+        padding: 10px 20px;
+        height: 500px;
+        opacity: 0.8;
+      }
+      .wrapper .title {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      .label {
+        width: 15%;
+        display: inline-block;
+        text-align: center;
+      }
+
+      .icon {
+        position: relative;
+        border:0px;
+        width:30px;
+        height:30px;
+      }
+      
+      .tip{
+        position: absolute;
+        top:100px;
+        right:200px;
+        background-image: url('../image/icon.png');
+        width: 130px;
+        height: 70px;
+        padding: 10px;
+        opacity: 0.9;
+        border-radius:25px;
+        border:2px solid rgb(12, 12, 12);
+      }
+      .description{
+        position: absolute;
+        bottom: 80px;
+        right: 10px;
+        background: #fff;
+        width: 430px;
+        height: 260px;
+        padding: 10px;
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="comparison-container">
+      <div id="before" class="map"></div>
+      <div id="after" class="map"></div>
+    </div>
+    <div class="wrapper">
+      <div class="title">
+        <h1>
+         Consumptions of Bioenergy
+        </h1>
+      </div>
+      <h3>Boroughs level (2005-2017)</h3>
+      <p>
+        Dark style shows the past data (from 2005 to 2011), and light style
+        shows the recent data (from 2012 to 2017) for comparison. 
+        London host the Olympics in 2012, so we choose the time boundary of year 2012. 
+      
+      <h3>Note: We choosing the indicator of consumption of bioenergy/all fuels</h3>
+      
+      <div class="slider">
+        <h2>Percentage</h2>
+        <div class="row colors"></div>
+        <div class="row labels">
+          <div class="label">0%</div>
+          <div class="label">20%</div>
+          <div class="label">40%</div>
+          <div class="label">60%</div>
+          <div class="label">80%</div>
+          <div class="label">100%</div>
+        </div>
+      </div>
+      <div class="slider">
+        <h2>Past year: <span class="slider-value1">2005</span></h2>
+        <div class="slider-bar">
+          <input
+            style="width: 200px"
+            id="slider1"
+            type="range"
+            min="2005"
+            max="2011"
+            step="1"
+            value="2005"
+            list="tickmarks"
+          />
+        </div>
+      </div>
+      <div class="slider">
+        <h2>Recent year: <span class="slider-value2">2012</span></h2>
+        <div class="slider-bar">
+          <input
+            style="width: 200px"
+            id="slider2"
+            type="range"
+            min="2012"
+            max="2017"
+            step="1"
+            value="2012"
+            list="tickmarks"
+          />
+        </div>
+      </div>
+      <h3>
+        Data collected from
+        <a
+          href="https://data.london.gov.uk/dataset/consumption-other-fuels-borough" target="_blank"
+          >London Datastore</a
+        >.
+      </h3>
+      </div>
+   
+     <div class='tip' id='icon'>
+       <h3>Tips: Clicking on the borough of Newham which has hosted the Olympics</h3></div>
+     </div>
+     
+
+    <div class='description'>
+      <h5>The popularity of bioenergy in different level of regions</h5>
+      <div id='chart_div'>
+    <script>
+      google.charts.load('current', {packages: ['corechart', 'line']});
+      google.charts.setOnLoadCallback(drawLineColors);
+
+      function drawLineColors() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'X');
+      data.addColumn('number', 'Newham');
+      data.addColumn('number', 'East area');
+      data.addColumn('number', 'United Kingdom');
+
+      data.addRows([
+      [2005,10.66,4.97,5.54],[2006,11.57,5.45,5.82],[2007,11.62,6.79,6.92],[2008,15.14,7.13,7.76],
+      [2009,16.93,6.26,9.74],[2010,30.13,6.77,10.14],[2011,30.61,6.96,10.20],
+      [2012,23.15,11.27,11.78],[2013,27.64,16.34,13.42],[2014,25.73,16.31,14.69],
+      [2015,27.57,20.61,17.31],[2016,27.92,17.43,16.02],[2017,27.38,17.23,16.32]
+      ]);
+
+      var options = {
+        hAxis: {
+          title: 'Year'
+        },
+        vAxis: {
+          title: 'Bioenergy / All fuels (%)'
+        },
+        colors: ['#088E1F', '#8E1408','#08298E']
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+    </script></div>
+    <h3>Note:Newham with green; East part of London with red; UK with blue</h3>
+    </div>
+    <script>
+      const App = {
+        init: function () {
+          this.beforeYear = 2005;
+          this.afterYear = 2012;
+          this.bindEvents();
+          this.initMap();
+        },
+
+        initMap: function () {
+          mapboxgl.accessToken =
+            "pk.eyJ1IjoiaG9uZzA3MDciLCJhIjoiY2tqdmUyMnB2MDgyZzJ2bXJpejlwbjdmNiJ9.BEIE3shUNtLrjrss0bmuRg";
+          this.beforeMap = new mapboxgl.Map({
+            container: "before",
+            style: "mapbox://styles/mapbox/dark-v10",
+            center: [-0.1, 51.5],
+            zoom: 9,
+          });
+          this.afterMap = new mapboxgl.Map({
+            container: "after",
+            style: "mapbox://styles/mapbox/light-v10",
+            center: [-0.1, 51.5],
+            zoom: 9,
+          });
+
+          this.map = new mapboxgl.Compare(
+            this.beforeMap,
+            this.afterMap,
+            "#comparison-container"
+          );
+          this.beforeMap.on("load", () => {
+            
+            
+            this.beforeMap.addSource("geojson1", {
+              type: "geojson",
+              data: geojson,
+            })
+            
+            this.beforeMap.addSource('point1', {
+             'type': 'geojson',
+             'data': {
+             'type': 'FeatureCollection',
+             'features': [
+             {
+             'type': 'Feature',
+             'geometry': {
+             'type': 'Point',
+             'coordinates': [-0.0127, 51.5462]
+             },
+             'properties': {
+             'title': 'Olympic in borough of Newham'
+             }}]}});
+
+            this.afterMap.addSource("geojson", {
+              type: "geojson",
+              data: geojson,
+            });
+
+            this.afterMap.addSource('point2', {
+              'type': 'geojson',
+              'data': {
+                'type': 'FeatureCollection',
+                'features': [{
+                  'type': 'Feature',
+                  'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-0.0127, 51.5462]
+                  },
+                  'properties': {
+                    'title': 'Olympic in borough of Newham'
+                  }
+                }]
+              }
+            });
+
+            // this.beforeMap.addLayer({
+            //   id: "lineLabel",
+            //   type: "symbol",
+            //   source: "geojson1",
+            //   layout: {
+            //     "symbol-placement": "line-center",
+            //     "text-field": ["get", "name"],
+            //     "text-size": 12,
+            //     "text-offset": [0, 1],
+            //   },
+            // });
+
+            this.addBeforeLayer();
+            this.addAfterLayer();
+            this.addBeforeEvent();
+            this.addAfterEvent();
+          });
+        },
+        addBeforeLayer: function () {
+          // this.beforeMap.addLayer({
+          //   id: `${this.beforeYear}label`,
+          //   type: "symbol",
+          //   source: "geojson1",
+          //   layout: {
+          //     "symbol-placement": "line-center",
+          //     "text-field": ["get", "name"],
+          //     "text-size": 16,
+          //     "text-offset": [0, 1],
+          //   },
+          // });
+          this.beforeMap.addLayer({
+            id: `${this.beforeYear}`,
+            type: "fill",
+            source: "geojson1",
+            layout: {},
+            paint: {
+              "fill-color": {
+                property: `YR${this.beforeYear}`,
+                stops: [
+                  [0.1, "#fff"],
+                  [0.2, "#a9cbae"],
+                  [0.3, "#63ac64"],
+                  [0.4, "#3b993b"],
+                  [0.5, "#13880f"],
+                  [0.6, "#11740D"],
+                  [0.7, "#0A5108"],
+                ],
+              },
+              "fill-opacity": 0.85,
+              "fill-outline-color": "white",
+            },
+          });
+          this.beforeMap.addLayer({
+                id: `point of ${this.beforeYear}`,
+               'type': 'symbol',
+               'source': 'point1',
+               'layout': {
+               'text-field': ['get', 'title'],
+               'text-font': [
+               'Open Sans Semibold',
+               'Arial Unicode MS Bold'],
+               'text-offset': [0, 1.25],
+               'text-anchor': 'top'}});
+
+        },
+        addAfterLayer: function () {
+          this.afterMap.addLayer({
+            id: `${this.afterYear}`,
+            type: "fill",
+            source: "geojson",
+            layout: {},
+            paint: {
+              "fill-color": {
+                property: `YR${this.afterYear}`,
+                stops: [
+                  [0.1, "#fff"],
+                  [0.2, "#a9cbae"],
+                  [0.3, "#63ac64"],
+                  [0.4, "#3b993b"],
+                  [0.5, "#13880f"],
+                  [0.6, "#11740D"],
+                  [0.7, "#0A5108"],
+                ],
+              },
+              "fill-opacity": 0.85,
+              "fill-outline-color": "white",
+            },
+          });
+          
+          this.afterMap.addLayer({
+                id: `point of ${this.afterYear}`,
+               'type': 'symbol',
+               'source': 'point2',
+               'layout': {
+               'text-field': ['get', 'title'],
+               'text-font': [
+               'Open Sans Semibold',
+               'Arial Unicode MS Bold'],
+               'text-offset': [0, 1.25],
+               'text-anchor': 'top'}});
+        },
+
+        addBeforeEvent: function () {
+          this.beforeMap.on("click", `${this.beforeYear}`, (e) => {
+            const currentYear = Object.keys(e.features[0].properties).find((o) => o.includes(this.beforeYear));
+            const html = `
+              <div style="font-size:14px">
+                <div>Year: ${this.beforeYear}</div>
+                <div>Area: ${e.features[0].properties.name}</div>
+                <div>Percentage(%): ${((e.features[0].properties[currentYear])*100).toFixed(2)}</div>
+              </div>
+            `;
+            new mapboxgl.Popup()
+              .setLngLat(e.lngLat)
+              .setHTML(html)
+              .addTo(this.beforeMap);
+          });
+        },
+        addAfterEvent: function () {
+          this.afterMap.on("click", `${this.afterYear}`, (e) => {
+            const currentYear = Object.keys(e.features[0].properties).find((o) => o.includes(this.afterYear));
+            const html = `
+              <div style="font-size:14px">
+              <div>Year: ${this.afterYear}</div>
+              <div>Area: ${e.features[0].properties.name}</div>
+              <div>Percentage(%): ${((e.features[0].properties[currentYear])*100).toFixed(2)}</div>
+            </div>
+            `;
+            new mapboxgl.Popup()
+              .setLngLat(e.lngLat)
+              .setHTML(html)
+              .addTo(this.afterMap);
+          });
+        },
+        removeBeforeLayer: function () {
+          ["2005", "2006", "2007", "2008", "2009", "2010", "2011"].map((o) => {
+            if (this.beforeMap.getLayer(o)) {
+              this.beforeMap.removeLayer(o);
+            }
+          });
+        },
+        removeAfterLayer: function () {
+          ["2012", "2013", "2014", "2015", "2016", "2017"].map((o) => {
+            if (this.afterMap.getLayer(o)) {
+              this.afterMap.removeLayer(o);
+            }
+          });
+        },
+        bindEvents: function () {
+          document.getElementById("slider1").addEventListener("input", (e) => {
+            this.beforeYear = Number(e.target.value);
+            $(".slider-value1").html(e.target.value);
+            this.removeBeforeLayer();
+            this.addBeforeLayer();
+            this.addBeforeEvent();
+          });
+
+          document.getElementById("slider2").addEventListener("input", (e) => {
+            this.afterYear = Number(e.target.value);
+            $(".slider-value2").html(e.target.value);
+            this.removeAfterLayer();
+            this.addAfterLayer();
+            this.addAfterEvent();
+          });
+        },
+      };
+      App.init();
+    </script>
+  </body>
+</html>
